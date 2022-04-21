@@ -49,6 +49,6 @@ plt.axis('off')
 
 if not os.path.exists("results"):
     os.makedirs("results")
-results.plot_sobols_treemap('g1', figsize=(10, 10), filename="resultss/result_g1.png")
-results.plot_sobols_treemap('g2', figsize=(10, 10), filename="resultss/result_g2.png")
-results.plot_sobols_treemap('g3', figsize=(10, 10), filename="resultss/result_g3.png")
+results.plot_sobols_treemap('g1', figsize=(10, 10), filename="results/result_g1.png")
+results.plot_sobols_treemap('g2', figsize=(10, 10), filename="results/result_g2.png")
+results.plot_sobols_treemap('g3', figsize=(10, 10), filename="results/result_g3.png")
