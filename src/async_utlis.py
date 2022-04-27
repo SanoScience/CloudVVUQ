@@ -1,6 +1,7 @@
 import asyncio
 import aiohttp
 import backoff
+from tqdm import tqdm
 
 from src.utils import get_token
 
@@ -11,7 +12,8 @@ def fatal_code(e):  # todo maybe another solution for faulty responses
     return None
 
 
-@backoff.on_exception(backoff.expo, (aiohttp.ClientResponseError, aiohttp.ClientOSError), max_tries=7, on_giveup=fatal_code)
+@backoff.on_exception(backoff.expo, (aiohttp.ClientResponseError, aiohttp.ClientOSError),
+                      max_tries=7, on_giveup=fatal_code)
 async def fetch(session, url, header, input_data):
     async with session.post(url, headers=header, json=input_data) as resp:
         if resp.status == 200:
@@ -35,7 +37,7 @@ async def run_simulations(inputs, url):
         for input_data in inputs:
             tasks.append(asyncio.ensure_future(fetch(session, url, header, input_data)))
 
-        results = await asyncio.gather(*tasks)
+        results = [await f for f in tqdm(asyncio.as_completed(tasks), desc="Batch progress", total=len(tasks))]
 
     results = [r for r in results if r is not None]  # todo test if necessary then add warning for missing outputs
 

@@ -79,7 +79,7 @@ class Executor:
 
         return results
 
-    def run_batch_mode(self, samples: list, batch_size: int):  # todo add tqdm?
+    def run_batch_mode(self, samples: list, batch_size: int):
         inputs = self._prepare_samples(samples)
         self.save_run_inputs(inputs)
 

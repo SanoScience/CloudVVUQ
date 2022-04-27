@@ -33,7 +33,6 @@ inputs = executor.draw_samples()
 
 outputs = executor.run_batch_mode(inputs, 1000)
 
-# print(outputs)
 campaign = executor.create_campaign("tube_deflection", input_columns=['F', 'L', 'a', 'D', 'd', 'E'],
                                     output_columns=['g1', 'g2', 'g3'])
 
