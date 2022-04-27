@@ -29,7 +29,12 @@ def upload_files(files):
     return gcs_paths
 
 
-def absoluteFilePaths(directory):
+def absolute_filepaths(directory):
+    filepaths = []
     for dir_path, _, filenames in os.walk(directory):
         for f in filenames:
-            yield os.path.abspath(os.path.join(dir_path, f))
+            abs_filepath = os.path.abspath(os.path.join(dir_path, f))
+            filepaths.append(abs_filepath)
+
+    filepaths.sort(key=lambda path: (len(path), path))
+    return filepaths

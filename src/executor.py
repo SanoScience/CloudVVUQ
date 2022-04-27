@@ -6,7 +6,7 @@ import asyncio
 import easyvvuq as uq
 
 from src.async_utlis import run_simulations
-from src.utils import absoluteFilePaths
+from src.utils import absolute_filepaths
 
 
 class Executor:
@@ -15,7 +15,7 @@ class Executor:
     sim_path: str  # todo add possibility to download and use additional files
 
     # Sampler
-    sampler: uq.sampling  # todo check other samples inputs
+    sampler: uq.sampling
     params: dict
 
     # Local
@@ -31,12 +31,16 @@ class Executor:
         self.sampler = sampler
         self.params = params
 
-    def draw_samples(self, n_samples: int):
+    def draw_samples(self, n_samples: int = 0):
+
         if self.sampler is None or self.params is None:
             raise ValueError("Sampler or its arguments are not set, use set_sampler method before drawing samples")
 
-        if n_samples <= 0:
-            raise ValueError("Number of samples must be > 0")
+        if not self.sampler.is_finite() and n_samples == 0:
+            msg = (f"Sampling_element '{self.sampler.element_name()}' "
+                   f"is an infinite generator, therefore a finite number of "
+                   f"draws (n > 0) must be specified.")
+            raise RuntimeError(msg)
 
         new_runs = []
         num_added = 0
@@ -75,7 +79,7 @@ class Executor:
 
         return results
 
-    def run_batch_mode(self, samples: list, batch_size: int):
+    def run_batch_mode(self, samples: list, batch_size: int):  # todo add tqdm?
         inputs = self._prepare_samples(samples)
         self.save_run_inputs(inputs)
 
@@ -138,7 +142,8 @@ class Executor:
             with open(output_path, "w+") as f:
                 json.dump(result, f, indent=4)
 
-    def create_campaign(self, name: str, inputs_dir: str = None, outputs_dir: str = None):
+    def create_campaign(self, name: str, input_columns: list[str], output_columns: list[str],
+                        inputs_dir: str = None, outputs_dir: str = None):
         campaign_work_dir = os.path.join(os.path.dirname(__file__), '..', "temp_work_dir")  # todo decide where tempdir
         if not os.path.exists(campaign_work_dir):
             os.makedirs(campaign_work_dir)
@@ -149,16 +154,16 @@ class Executor:
 
         inputs_dir = inputs_dir or os.path.join(self.work_dir, "inputs")
         outputs_dir = outputs_dir or os.path.join(self.work_dir, "outputs")
-        input_files = list(absoluteFilePaths(inputs_dir))
-        output_files = list(absoluteFilePaths(outputs_dir))
+        input_files = absolute_filepaths(inputs_dir)
+        output_files = absolute_filepaths(outputs_dir)
 
         if not output_files:
             raise ValueError("Output files not found")
         if len(output_files) < len(input_files):
             raise ValueError("Missing outputs, try running 'rerun_missing' method before.")
 
-        input_decoder = uq.decoders.JSONDecoder(target_filename='_', output_columns=['F', 'L', 'a', 'D', 'd', 'E'])
-        output_decoder = uq.decoders.JSONDecoder(target_filename='_', output_columns=['g1', 'g2', 'g3'])
+        input_decoder = uq.decoders.JSONDecoder(target_filename='_', output_columns=input_columns)
+        output_decoder = uq.decoders.JSONDecoder(target_filename='_', output_columns=output_columns)
 
         campaign.add_external_runs(input_files, output_files, input_decoder, output_decoder)
 
