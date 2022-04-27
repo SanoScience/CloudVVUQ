@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 
 from src.executor import Executor
 
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'credentials/credentials.json'
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '../credentials/credentials.json'
 url = "https://europe-west1-sano-332607.cloudfunctions.net/test_simulation_http"
 
 params = {
@@ -15,7 +15,7 @@ params = {
     "D": {"type": "float", "min": 0.75, "max": 0.85, "default": 0.8},
     "d": {"type": "float", "default": 0.1},
     "E": {"type": "float", "default": 200000},
-    "outfile": {"type": "string", "default": "/tmp/output.json"}
+    "outfile": {"type": "string", "default": "output.json"}
 }
 vary = {
     "F": cp.Normal(1, 0.1),
@@ -29,13 +29,13 @@ sampler = uq.sampling.SCSampler(vary=vary, polynomial_order=3)
 executor = Executor(url, "inputs/beam")
 executor.set_sampler(sampler, params)
 
-inputs = executor.draw_samples(256)
-# inputs = [inputs[i % len(inputs)] for i in range(10000)]
+inputs = executor.draw_samples()
 
-outputs = executor.run_batch_mode(inputs, 50)
+outputs = executor.run_batch_mode(inputs, 1000)
 
-print(outputs)
-campaign = executor.create_campaign("tube_deflection")
+# print(outputs)
+campaign = executor.create_campaign("tube_deflection", input_columns=['F', 'L', 'a', 'D', 'd', 'E'],
+                                    output_columns=['g1', 'g2', 'g3'])
 
 campaign.apply_analysis(
     uq.analysis.SCAnalysis(
@@ -47,8 +47,6 @@ campaign.apply_analysis(
 results = campaign.get_last_analysis()
 plt.axis('off')
 
-if not os.path.exists("results"):
-    os.makedirs("results")
-results.plot_sobols_treemap('g1', figsize=(10, 10), filename="results/result_g1.png")
-results.plot_sobols_treemap('g2', figsize=(10, 10), filename="results/result_g2.png")
-results.plot_sobols_treemap('g3', figsize=(10, 10), filename="results/result_g3.png")
+results.plot_sobols_treemap('g1', figsize=(10, 10), filename="tube_deflection/result_g1.png")
+results.plot_sobols_treemap('g2', figsize=(10, 10), filename="tube_deflection/result_g2.png")
+results.plot_sobols_treemap('g3', figsize=(10, 10), filename="tube_deflection/result_g3.png")
