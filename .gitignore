@@ -1,11 +1,5 @@
-# Credentials
-./credentials
-# Results dir
-./results
 # Runs general output dir
 ./runs
-# Temp dir for campaign
-./temp_work_dir
 
 
 # Byte-compiled / optimized / DLL files

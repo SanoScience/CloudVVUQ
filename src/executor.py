@@ -63,8 +63,6 @@ class Executor:
         return new_runs
 
     def _prepare_samples(self, samples: list):
-        # run["outfile"] = "/tmp/output.json"  # hardcoded output filename on GCF
-
         paths = {"sim_gcs_path": self.sim_path}
         inputs = [{**input, **paths, "run_id": i, "outfile": f"/tmp/output_{i}.json"}
                   for i, input in enumerate(samples)]
@@ -146,11 +144,10 @@ class Executor:
 
     def create_campaign(self, name: str, input_columns: list[str], output_columns: list[str],
                         inputs_dir: str = None, outputs_dir: str = None):
-        campaign_work_dir = os.path.join(os.path.dirname(__file__), '..', "temp_work_dir")  # todo decide where tempdir
-        if not os.path.exists(campaign_work_dir):
-            os.makedirs(campaign_work_dir)
+        if not os.path.exists(self.work_dir):  # used when importing external runs into campaign
+            os.makedirs(self.work_dir)
 
-        campaign = uq.Campaign(name=name + "_", work_dir=campaign_work_dir)
+        campaign = uq.Campaign(name=name + "_", work_dir=self.work_dir)
         campaign.add_app(name=name, params=self.params)
         campaign.set_sampler(self.sampler)
 
