@@ -12,14 +12,14 @@ def get_token(audience):
 
 
 def upload_files(files):
-    BUCKET_NAME = "my_test_bucket_333"  # todo create new bucket with good name
+    BUCKET_NAME = "cloudvvuq"
     gcs_client = storage.Client()
 
     bucket = gcs_client.get_bucket(BUCKET_NAME)
     gcs_paths = []
     for file in files:
         filename = os.path.basename(file)
-        path = f"inputs/{filename}"  # todo group input files
+        path = f"inputs/{filename}"
 
         blob = bucket.blob(path)
         blob.upload_from_filename(file)

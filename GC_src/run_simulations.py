@@ -3,7 +3,7 @@ from google.cloud import storage
 import json
 from os.path import basename, exists
 
-BUCKET_NAME = "my_test_bucket_333"
+BUCKET_NAME = "cloudvvuq"
 gcs_client = storage.Client()
 
 

@@ -6,7 +6,8 @@ from matplotlib import pyplot as plt
 from src.executor import Executor
 
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '../credentials/credentials.json'
-url = "https://europe-west1-sano-332607.cloudfunctions.net/test_simulation_http"
+url = "https://europe-west1-sano-332607.cloudfunctions.net/cloudvvuq"  # Cloud Functions
+# url = "https://cloudvvuq-ymkbuh6guq-ew.a.run.app"                    # Cloud Run
 
 params = {
     "F": {"type": "float", "default": 1.0},

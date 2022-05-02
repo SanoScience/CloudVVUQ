@@ -9,8 +9,8 @@ import matplotlib.pylab as plt
 from src.executor import Executor
 
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '../credentials/credentials.json'
-url = "https://europe-west1-sano-332607.cloudfunctions.net/test_simulation_http"
-
+url = "https://europe-west1-sano-332607.cloudfunctions.net/cloudvvuq"  # Cloud Functions
+# url = "https://cloudvvuq-ymkbuh6guq-ew.a.run.app"                    # Cloud Run
 
 # from src.utils import upload_files
 # input_path = upload_files(["examples/ishigami/ishigami.py"])
