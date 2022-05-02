@@ -37,8 +37,9 @@ async def run_simulations(inputs, url):
         for input_data in inputs:
             tasks.append(asyncio.ensure_future(fetch(session, url, header, input_data)))
 
+        # results = await asyncio.gather(*tasks)  # preserves order of run_id but no tqdm
         results = [await f for f in tqdm(asyncio.as_completed(tasks), desc="Batch progress", total=len(tasks))]
-
-    results = [r for r in results if r is not None]  # todo test if necessary then add warning for missing outputs
+        results = [r for r in results if r is not None]  # todo test if necessary then add warning for missing outputs
+        results.sort(key=lambda x: x["run_id"])
 
     return results
