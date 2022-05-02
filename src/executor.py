@@ -54,8 +54,6 @@ class Executor:
                 default_val = self.params[param]["default"]
                 run[param] = default_val
 
-            run["outfile"] = "/tmp/output.json"  # hardcoded output filename on GCF
-
             num_added += 1
             new_runs.append(run)
 
@@ -65,8 +63,12 @@ class Executor:
         return new_runs
 
     def _prepare_samples(self, samples: list):
+        # run["outfile"] = "/tmp/output.json"  # hardcoded output filename on GCF
+
         paths = {"sim_gcs_path": self.sim_path}
-        inputs = [{**input, **paths, "run_id": i} for i, input in enumerate(samples)]
+        inputs = [{**input, **paths, "run_id": i, "outfile": f"/tmp/output_{i}.json"}
+                  for i, input in enumerate(samples)]
+
         return inputs
 
     def run(self, samples: list):
