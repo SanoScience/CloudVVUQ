@@ -1,0 +1,3 @@
+flask
+scipy
+google-cloud-storage
