@@ -3,7 +3,7 @@ import aiohttp
 import backoff
 from tqdm import tqdm
 
-from src.utils import get_token
+from cloudvvuq.utils import get_token
 
 asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
@@ -29,7 +29,7 @@ async def fetch(session, url, header, input_data):
 
 
 async def run_simulations(inputs, url):
-    id_token = get_token(url)
+    id_token = get_token(url)  # timeout
     header = {"Authorization": f"Bearer {id_token}", 'Content-Type': "application/json"}
 
     async with aiohttp.ClientSession() as session:

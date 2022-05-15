@@ -6,7 +6,7 @@ import easyvvuq as uq
 import pickle
 import numpy as np
 import matplotlib.pylab as plt
-from src.executor import Executor
+from cloudvvuq.executor import Executor
 
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '../credentials/credentials.json'
 url = "https://europe-west1-sano-332607.cloudfunctions.net/cloudvvuq"  # Cloud Functions

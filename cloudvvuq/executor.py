@@ -5,8 +5,8 @@ import time
 import asyncio
 import easyvvuq as uq
 
-from src.async_utlis import run_simulations
-from src.utils import absolute_filepaths
+from cloudvvuq.async_utlis import run_simulations
+from cloudvvuq.utils import absolute_filepaths
 
 
 class Executor:

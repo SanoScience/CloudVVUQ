@@ -3,7 +3,7 @@ import chaospy as cp
 import easyvvuq as uq
 from matplotlib import pyplot as plt
 
-from src.executor import Executor
+from cloudvvuq.executor import Executor
 
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '../credentials/credentials.json'
 url = "https://europe-west1-sano-332607.cloudfunctions.net/cloudvvuq"  # Cloud Functions
