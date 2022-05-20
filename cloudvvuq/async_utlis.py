@@ -5,8 +5,6 @@ from tqdm import tqdm
 
 from cloudvvuq.utils import get_token
 
-asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-
 
 def fatal_code(e):  # todo maybe another solution for faulty responses
     return None
@@ -29,7 +27,7 @@ async def fetch(session, url, header, input_data):
 
 
 async def run_simulations(inputs, url):
-    id_token = get_token(url)  # timeout
+    id_token = get_token(url)  # lifetime 1h
     header = {"Authorization": f"Bearer {id_token}", 'Content-Type': "application/json"}
 
     async with aiohttp.ClientSession() as session:
