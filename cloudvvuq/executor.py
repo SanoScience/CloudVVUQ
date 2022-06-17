@@ -4,6 +4,7 @@ import json
 import time
 import asyncio
 import easyvvuq as uq
+from tqdm import tqdm
 
 from cloudvvuq.async_utlis import run_simulations
 from cloudvvuq.utils import absolute_filepaths
@@ -21,7 +22,7 @@ class Executor:
     # Local
     work_dir: str
 
-    def __init__(self, url: str, sim_path: str, work_dir: str = None):
+    def __init__(self, url: str, sim_path: str, work_dir: str = None):  # todo sim_path can be none => no file downloaded then
         self.url = url
         self.sim_path = sim_path
         self.work_dir = work_dir or os.path.join(os.path.dirname(__file__), "..", "runs", f"run_{int(time.time())}")
@@ -31,8 +32,31 @@ class Executor:
         self.sampler = sampler
         self.params = params
 
-    def draw_samples(self, n_samples: int = 0):
+    def _find_n_samples(self, n_samples):
+        """
+        Find max number of samples for current sampler and update n_samples if is lower or n_samples == 0.
+        :param n_samples: User defined number of samples
+        :return: min(n_samples, sampler_max_samples) or (sampler_max_samples if n_samples == 0)
+        """
+        if hasattr(self.sampler, "n_samples"):
+            if isinstance(self.sampler.n_samples, int):
+                sampler_max_samples = self.sampler.n_samples
+            elif callable(self.sampler.n_samples):
+                try:
+                    sampler_max_samples = self.sampler.n_samples()
+                except RuntimeError:
+                    return n_samples
+            else:
+                return n_samples
 
+            if n_samples == 0:
+                return sampler_max_samples
+            else:
+                return min(n_samples, sampler_max_samples)
+
+        return n_samples
+
+    def draw_samples(self, n_samples: int = 0):
         if self.sampler is None or self.params is None:
             raise ValueError("Sampler or its arguments are not set, use set_sampler method before drawing samples")
 
@@ -44,7 +68,12 @@ class Executor:
 
         new_runs = []
         num_added = 0
-        for run in self.sampler:
+        n_samples = self._find_n_samples(n_samples)
+
+        for run in tqdm(self.sampler, total=n_samples, desc="Sampling ... "):  # todo fix when unknown length
+            if num_added >= n_samples:  # why in easyvvuq there is: n_samples != 0 and num_added >= n_samples
+                break
+
             missing_params = [param for param in self.params.keys() if param not in run.keys()]
 
             for param in missing_params:
@@ -57,12 +86,9 @@ class Executor:
             num_added += 1
             new_runs.append(run)
 
-            if n_samples != 0 and num_added >= n_samples:
-                break
-
         return new_runs
 
-    def _prepare_samples(self, samples: list):
+    def _prepare_samples(self, samples: list):  # add unique sim_id and outputs dir in tmp
         paths = {"sim_gcs_path": self.sim_path}
         inputs = [{**input, **paths, "run_id": i, "outfile": f"/tmp/output_{i}.json"}
                   for i, input in enumerate(samples)]
@@ -142,7 +168,7 @@ class Executor:
             with open(output_path, "w+") as f:
                 json.dump(result, f, indent=4)
 
-    def create_campaign(self, name: str, input_columns: list[str], output_columns: list[str],
+    def create_campaign(self, name: str, input_columns: list[str], output_columns: list[str],  # todo default all columns
                         inputs_dir: str = None, outputs_dir: str = None):
         if not os.path.exists(self.work_dir):  # used when importing external runs into campaign
             os.makedirs(self.work_dir)
@@ -157,9 +183,9 @@ class Executor:
         output_files = absolute_filepaths(outputs_dir)
 
         if not output_files:
-            raise ValueError("Output files not found")
+            raise FileNotFoundError("Output files not found")
         if len(output_files) < len(input_files):
-            raise ValueError("Missing outputs, try running 'rerun_missing' method before.")
+            raise FileNotFoundError("Missing outputs, try running 'rerun_missing' method before.")
 
         input_decoder = uq.decoders.JSONDecoder(target_filename='_', output_columns=input_columns)
         output_decoder = uq.decoders.JSONDecoder(target_filename='_', output_columns=output_columns)
