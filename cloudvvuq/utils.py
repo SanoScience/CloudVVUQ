@@ -29,12 +29,9 @@ def upload_files(files):
     return gcs_paths
 
 
-def absolute_filepaths(directory):
-    filepaths = []
-    for dir_path, _, filenames in os.walk(directory):
-        for f in filenames:
-            abs_filepath = os.path.abspath(os.path.join(dir_path, f))
-            filepaths.append(abs_filepath)
+def relative_filepaths(directory):
+    filepaths = [os.path.join(directory, f).replace("/", os.sep).replace("\\", os.sep)  # todo move to pathlib?
+                 for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
 
     filepaths.sort(key=lambda path: (len(path), path))
     return filepaths

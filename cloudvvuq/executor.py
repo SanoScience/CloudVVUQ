@@ -7,7 +7,7 @@ import easyvvuq as uq
 from tqdm import tqdm
 
 from cloudvvuq.async_utlis import run_simulations
-from cloudvvuq.utils import absolute_filepaths
+from cloudvvuq.utils import relative_filepaths
 
 
 class Executor:
@@ -179,8 +179,8 @@ class Executor:
 
         inputs_dir = inputs_dir or os.path.join(self.work_dir, "inputs")
         outputs_dir = outputs_dir or os.path.join(self.work_dir, "outputs")
-        input_files = absolute_filepaths(inputs_dir)
-        output_files = absolute_filepaths(outputs_dir)
+        input_files = relative_filepaths(inputs_dir)
+        output_files = relative_filepaths(outputs_dir)
 
         if not output_files:
             raise FileNotFoundError("Output files not found")
