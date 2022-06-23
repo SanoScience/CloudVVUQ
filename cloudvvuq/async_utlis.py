@@ -40,6 +40,6 @@ async def run_simulations(inputs, url, require_auth):
         # results = await asyncio.gather(*tasks)  # preserves order of run_id but no tqdm
         results = [await f for f in tqdm(asyncio.as_completed(tasks), desc="Batch progress", total=len(tasks))]  # todo asyncio timeouterror
         results = [r for r in results if r is not None]  # todo test if necessary then add warning for missing outputs
-        results.sort(key=lambda x: x["run_id"])
+        results.sort(key=lambda x: x["run_id"])  # todo change to sample_id
 
     return results

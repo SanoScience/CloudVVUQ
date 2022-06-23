@@ -32,6 +32,6 @@ url = "https://europe-west1-sano-332607.cloudfunctions.net/test_simulation_http"
    - create EasyVVUQ sampler with parameters
    - create instance of *Executor* class
    - draw samples from sampler 
-   - use *executor.run()* or *executor.run_batch_mode()* to start simulations
+   - use *executor.run()* to start simulations
 6. Create EasyVVUQ *Campaign* object  and analyze.
 7. When in doubt follow scripts in examples directory.

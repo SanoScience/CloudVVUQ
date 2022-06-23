@@ -95,28 +95,18 @@ class Executor:
 
         return inputs
 
-    def run(self, samples: list, require_auth: bool = True):  # todo combine run modes by using batch parameter
+    def run(self, samples: list, *, batch_size: int = 0, require_auth: bool = True):
         inputs = self._prepare_samples(samples)
         self.save_run_inputs(inputs)
 
-        results = asyncio.run(run_simulations(inputs, self.url, require_auth))
-
-        self.save_run_outputs(results)
-
-        return results
-
-    def run_batch_mode(self, samples: list, batch_size: int, require_auth: bool = True):
-        inputs = self._prepare_samples(samples)
-        self.save_run_inputs(inputs)
-
-        results = []
-
-        for batch in range(0, len(inputs), batch_size):
-            input_bach = inputs[batch:batch + batch_size]
-
-            results_batch = asyncio.run(run_simulations(input_bach, self.url, require_auth))
-
-            results.extend(results_batch)
+        if batch_size == 0:
+            results = asyncio.run(run_simulations(inputs, self.url, require_auth))
+        else:
+            results = []
+            for batch in range(0, len(inputs), batch_size):
+                input_bach = inputs[batch:batch + batch_size]
+                results_batch = asyncio.run(run_simulations(input_bach, self.url, require_auth))
+                results.extend(results_batch)
 
         self.save_run_outputs(results)
 
