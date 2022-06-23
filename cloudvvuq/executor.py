@@ -88,7 +88,7 @@ class Executor:
 
         return new_runs
 
-    def _prepare_samples(self, samples: list):  # add unique sim_id and outputs dir in tmp
+    def _prepare_samples(self, samples: list):  # add unique sim_id?
         paths = {"sim_gcs_path": self.sim_path}
         inputs = [{**input, **paths, "run_id": i, "outfile": f"/tmp/output_{i}.json"}  # todo outputs subdir
                   for i, input in enumerate(samples)]
@@ -158,8 +158,9 @@ class Executor:
             with open(output_path, "w+") as f:
                 json.dump(result, f, indent=4)
 
-    def create_campaign(self, name: str, input_columns: list[str], output_columns: list[str],  # todo default all columns
+    def create_campaign(self, name: str, input_columns: list[str], output_columns: list[str],
                         inputs_dir: str = None, outputs_dir: str = None):
+
         if not os.path.exists(self.work_dir):  # used when importing external runs into campaign
             os.makedirs(self.work_dir)
 

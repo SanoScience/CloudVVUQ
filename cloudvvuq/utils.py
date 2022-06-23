@@ -5,17 +5,16 @@ import google.auth.transport.requests
 from google.cloud import storage
 
 
-def get_token(audience):
+def get_gcp_token(audience):
     auth_req = google.auth.transport.requests.Request()
     id_token = google.oauth2.id_token.fetch_id_token(auth_req, audience)
     return id_token
 
 
-def upload_files(files):
-    BUCKET_NAME = "cloudvvuq"
+def upload_files(files, bucket_name):
     gcs_client = storage.Client()
 
-    bucket = gcs_client.get_bucket(BUCKET_NAME)
+    bucket = gcs_client.get_bucket(bucket_name)
     gcs_paths = []
     for file in files:
         filename = os.path.basename(file)

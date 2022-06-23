@@ -3,7 +3,7 @@ import aiohttp
 import backoff
 from tqdm import tqdm
 
-from cloudvvuq.utils import get_token
+from cloudvvuq.utils import get_gcp_token
 
 
 def fatal_code(e):  # todo maybe another solution for faulty responses
@@ -29,7 +29,7 @@ async def fetch(session, url, header, input_data):
 async def run_simulations(inputs, url, require_auth):
     header = {'Content-Type': "application/json"}
     if require_auth:  # todo add aws, azure etc?
-        id_token = get_token(url)  # lifetime 1h  # todo add url validation?
+        id_token = get_gcp_token(url)  # lifetime 1h  # todo add url validation?
         header["Authorization"] = f"Bearer {id_token}"
 
     async with aiohttp.ClientSession() as session:
