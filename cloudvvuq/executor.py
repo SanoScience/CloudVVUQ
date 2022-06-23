@@ -32,7 +32,7 @@ class Executor:
         self.sampler = sampler
         self.params = params
 
-    def _find_n_samples(self, n_samples):
+    def _find_max_samples(self, n_samples):
         """
         Find max number of samples for current sampler and update n_samples if is lower or n_samples == 0.
         :param n_samples: User defined number of samples
@@ -44,7 +44,7 @@ class Executor:
             elif callable(self.sampler.n_samples):
                 try:
                     sampler_max_samples = self.sampler.n_samples()
-                except RuntimeError:
+                except RuntimeError:  # Infinite samples
                     return n_samples
             else:
                 return n_samples
@@ -68,9 +68,9 @@ class Executor:
 
         new_runs = []
         num_added = 0
-        n_samples = self._find_n_samples(n_samples)
+        n_samples = self._find_max_samples(n_samples)
 
-        for run in tqdm(self.sampler, total=n_samples, desc="Sampling ... "):  # todo fix when unknown length
+        for run in tqdm(self.sampler, total=n_samples, desc="Sampling ... "):
             if num_added >= n_samples:  # why in easyvvuq there is: n_samples != 0 and num_added >= n_samples
                 break
 
@@ -90,22 +90,22 @@ class Executor:
 
     def _prepare_samples(self, samples: list):  # add unique sim_id and outputs dir in tmp
         paths = {"sim_gcs_path": self.sim_path}
-        inputs = [{**input, **paths, "run_id": i, "outfile": f"/tmp/output_{i}.json"}
+        inputs = [{**input, **paths, "run_id": i, "outfile": f"/tmp/output_{i}.json"}  # todo outputs subdir
                   for i, input in enumerate(samples)]
 
         return inputs
 
-    def run(self, samples: list):
+    def run(self, samples: list, require_auth: bool = True):  # todo combine run modes by using batch parameter
         inputs = self._prepare_samples(samples)
         self.save_run_inputs(inputs)
 
-        results = asyncio.run(run_simulations(inputs, self.url))
+        results = asyncio.run(run_simulations(inputs, self.url, require_auth))
 
         self.save_run_outputs(results)
 
         return results
 
-    def run_batch_mode(self, samples: list, batch_size: int):
+    def run_batch_mode(self, samples: list, batch_size: int, require_auth: bool = True):
         inputs = self._prepare_samples(samples)
         self.save_run_inputs(inputs)
 
@@ -114,7 +114,7 @@ class Executor:
         for batch in range(0, len(inputs), batch_size):
             input_bach = inputs[batch:batch + batch_size]
 
-            results_batch = asyncio.run(run_simulations(input_bach, self.url))
+            results_batch = asyncio.run(run_simulations(input_bach, self.url, require_auth))
 
             results.extend(results_batch)
 
@@ -122,7 +122,7 @@ class Executor:
 
         return results
 
-    def rerun_missing(self, input_dir: str = None, output_dir: str = None):
+    def rerun_missing(self, input_dir: str = None, output_dir: str = None, require_auth: bool = True):
         input_dir = input_dir or os.path.join(self.work_dir, "inputs")
         output_dir = output_dir or os.path.join(self.work_dir, "outputs")
 
@@ -142,7 +142,7 @@ class Executor:
                 with open(input_path) as f:
                     missing_inputs.append(json.load(f))
 
-        results = asyncio.run(run_simulations(missing_inputs, self.url))
+        results = asyncio.run(run_simulations(missing_inputs, self.url, require_auth))  # todo batch mode
 
         self.save_run_outputs(results, output_dir)
 

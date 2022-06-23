@@ -16,9 +16,9 @@ async def fetch(session, url, header, input_data):
     async with session.post(url, headers=header, json=input_data) as resp:
         if resp.status == 200:
             result = await resp.json()
+            # todo save response here? (to runs/run_id/outputs/...)
             return result
         else:
-            print(resp.content_type)
             print(resp.status)
             print(resp.headers)
             resp.raise_for_status()
@@ -26,9 +26,11 @@ async def fetch(session, url, header, input_data):
         return
 
 
-async def run_simulations(inputs, url):
-    id_token = get_token(url)  # lifetime 1h
-    header = {"Authorization": f"Bearer {id_token}", 'Content-Type': "application/json"}
+async def run_simulations(inputs, url, require_auth):
+    header = {'Content-Type': "application/json"}
+    if require_auth:  # todo add aws, azure etc?
+        id_token = get_token(url)  # lifetime 1h  # todo add url validation?
+        header["Authorization"] = f"Bearer {id_token}"
 
     async with aiohttp.ClientSession() as session:
         tasks = []
@@ -36,7 +38,7 @@ async def run_simulations(inputs, url):
             tasks.append(asyncio.ensure_future(fetch(session, url, header, input_data)))
 
         # results = await asyncio.gather(*tasks)  # preserves order of run_id but no tqdm
-        results = [await f for f in tqdm(asyncio.as_completed(tasks), desc="Batch progress", total=len(tasks))]
+        results = [await f for f in tqdm(asyncio.as_completed(tasks), desc="Batch progress", total=len(tasks))]  # todo asyncio timeouterror
         results = [r for r in results if r is not None]  # todo test if necessary then add warning for missing outputs
         results.sort(key=lambda x: x["run_id"])
 
