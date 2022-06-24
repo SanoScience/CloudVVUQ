@@ -90,8 +90,7 @@ class Executor:
 
     def _prepare_samples(self, samples: list):  # add unique sim_id?
         paths = {"sim_gcs_path": self.sim_path}
-        inputs = [{**input, **paths, "run_id": i, "outfile": f"/tmp/output_{i}.json"}  # todo outputs subdir
-                  for i, input in enumerate(samples)]
+        inputs = [{**input, **paths, "run_id": i} for i, input in enumerate(samples)]
 
         return inputs
 

@@ -10,6 +10,8 @@ gcs_client = storage.Client()
 def run_simulation(request):
     input_json = request.get_json()
     input_path = f"/tmp/input_{input_json['run_id']}.json"
+    input_json["outfile"] = f"/tmp/output_{input_json['run_id']}.json"
+
     with open(input_path, "w+") as f:
         json.dump(input_json, f)
 
