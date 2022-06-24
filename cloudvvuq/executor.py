@@ -70,7 +70,7 @@ class Executor:
         num_added = 0
         n_samples = self._find_max_samples(n_samples)
 
-        for run in tqdm(self.sampler, total=n_samples, desc="Sampling ... "):
+        for run in tqdm(self.sampler, total=n_samples, desc="Sampling ...  "):
             if num_added >= n_samples:  # why in easyvvuq there is: n_samples != 0 and num_added >= n_samples
                 break
 
@@ -95,24 +95,34 @@ class Executor:
 
         return inputs
 
+    def _run(self, inputs: list, *, batch_size: int = 0, require_auth: bool = True):
+        if batch_size == 0:
+            batch_size = len(inputs)
+
+        results = []
+        batches = tqdm(range(0, len(inputs), batch_size),
+                       bar_format='Total progress: {l_bar}{bar:10}{r_bar}{bar:-10b}')
+
+        for batch in batches:
+            input_bach = inputs[batch:batch + batch_size]
+            results_batch = asyncio.run(run_simulations(input_bach, self.url, require_auth, pbar=batches))
+            results.extend(results_batch)
+
+        return results
+
     def run(self, samples: list, *, batch_size: int = 0, require_auth: bool = True):
         inputs = self._prepare_samples(samples)
         self.save_run_inputs(inputs)
 
-        if batch_size == 0:
-            results = asyncio.run(run_simulations(inputs, self.url, require_auth))
-        else:
-            results = []
-            for batch in range(0, len(inputs), batch_size):
-                input_bach = inputs[batch:batch + batch_size]
-                results_batch = asyncio.run(run_simulations(input_bach, self.url, require_auth))
-                results.extend(results_batch)
+        results = self._run(inputs, batch_size=batch_size, require_auth=require_auth)
 
         self.save_run_outputs(results)
 
         return results
 
-    def rerun_missing(self, input_dir: str = None, output_dir: str = None, require_auth: bool = True):
+    def rerun_missing(self, input_dir: str = None, output_dir: str = None, batch_size: int = 0,
+                      require_auth: bool = True):
+
         input_dir = input_dir or os.path.join(self.work_dir, "inputs")
         output_dir = output_dir or os.path.join(self.work_dir, "outputs")
 
@@ -132,7 +142,7 @@ class Executor:
                 with open(input_path) as f:
                     missing_inputs.append(json.load(f))
 
-        results = asyncio.run(run_simulations(missing_inputs, self.url, require_auth))  # todo batch mode
+        results = self._run(missing_inputs, batch_size=batch_size, require_auth=require_auth)
 
         self.save_run_outputs(results, output_dir)
 

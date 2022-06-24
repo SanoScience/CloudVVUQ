@@ -3,7 +3,7 @@ import aiohttp
 import backoff
 from tqdm import tqdm
 
-from cloudvvuq.utils import get_gcp_token
+from cloudvvuq.utils import get_gcp_token, batch_progress
 
 
 def fatal_code(e):  # todo maybe another solution for faulty responses
@@ -26,7 +26,7 @@ async def fetch(session, url, header, input_data):
         return
 
 
-async def run_simulations(inputs, url, require_auth):
+async def run_simulations(inputs, url, require_auth, pbar):
     header = {'Content-Type': "application/json"}
     if require_auth:  # todo add aws, azure etc?
         id_token = get_gcp_token(url)  # lifetime 1h  # todo add url validation?
@@ -37,8 +37,12 @@ async def run_simulations(inputs, url, require_auth):
         for input_data in inputs:
             tasks.append(asyncio.ensure_future(fetch(session, url, header, input_data)))
 
-        # results = await asyncio.gather(*tasks)  # preserves order of run_id but no tqdm
-        results = [await f for f in tqdm(asyncio.as_completed(tasks), desc="Batch progress", total=len(tasks))]  # todo asyncio timeouterror
+        results = []
+        pbar.set_postfix_str(batch_progress(0, len(tasks)))
+        for i, f in enumerate(asyncio.as_completed(tasks)):  # todo asyncio timeouterror
+            results.append(await f)
+            pbar.set_postfix_str(batch_progress(i + 1, len(tasks)))
+
         results = [r for r in results if r is not None]  # todo test if necessary then add warning for missing outputs
         results.sort(key=lambda x: x["run_id"])  # todo change to sample_id
 
