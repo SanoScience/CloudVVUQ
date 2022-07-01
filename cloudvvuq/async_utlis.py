@@ -1,7 +1,6 @@
 import asyncio
 import aiohttp
 import backoff
-from tqdm import tqdm
 
 from cloudvvuq.utils import get_gcp_token, batch_progress
 
@@ -16,7 +15,7 @@ async def fetch(session, url, header, input_data):
     async with session.post(url, headers=header, json=input_data) as resp:
         if resp.status == 200:
             result = await resp.json()
-            # todo save response here? (to runs/run_id/outputs/...)
+            # todo save response here? (to runs/input_id/outputs/...)
             return result
         else:
             print(resp.status)
@@ -39,11 +38,11 @@ async def run_simulations(inputs, url, require_auth, pbar):
 
         results = []
         pbar.set_postfix_str(batch_progress(0, len(tasks)))
-        for i, f in enumerate(asyncio.as_completed(tasks)):  # todo asyncio timeouterror
+        for i, f in enumerate(asyncio.as_completed(tasks)):  # todo asyncio timeouterror, .client_exceptions.ServerDisconnectedError:
             results.append(await f)
             pbar.set_postfix_str(batch_progress(i + 1, len(tasks)))
 
         results = [r for r in results if r is not None]  # todo test if necessary then add warning for missing outputs
-        results.sort(key=lambda x: x["run_id"])  # todo change to sample_id
+        results.sort(key=lambda x: x["input_id"])
 
     return results

@@ -88,12 +88,12 @@ class Executor:
 
         return new_runs
 
-    def _prepare_samples(self, samples: list):  # add unique sim_id?
-        paths = {"sim_gcs_path": self.sim_path}
-        inputs = [{**input, **paths, "run_id": i, "outfile": f"/tmp/output_{i}.json"}  # todo outputs subdir
-                  for i, input in enumerate(samples)]
+    def _prepare_samples(self, samples: list):
+        for i, sample in enumerate(samples):
+            sample["input_id"] = i
+            sample["sim_gcs_path"] = self.sim_path
 
-        return inputs
+        return samples
 
     def _run(self, inputs: list, *, batch_size: int = 0, require_auth: bool = True):
         if batch_size == 0:
@@ -153,7 +153,7 @@ class Executor:
             os.makedirs(save_dir)
 
         for input in inputs:
-            output_path = os.path.join(save_dir, f"input_{input['run_id']}.json")
+            output_path = os.path.join(save_dir, f"input_{input['input_id']}.json")
             with open(output_path, "w+") as f:
                 json.dump(input, f, indent=4)
 
@@ -164,7 +164,7 @@ class Executor:
             os.makedirs(save_dir)
 
         for result in results:
-            output_path = os.path.join(save_dir, f"output_{result['run_id']}.json")
+            output_path = os.path.join(save_dir, f"output_{result['input_id']}.json")
             with open(output_path, "w+") as f:
                 json.dump(result, f, indent=4)
 
