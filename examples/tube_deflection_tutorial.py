@@ -6,8 +6,8 @@ from matplotlib import pyplot as plt
 from cloudvvuq.executor import Executor
 
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '../credentials/credentials.json'
-url = "https://europe-west1-sano-332607.cloudfunctions.net/cloudvvuq"  # Cloud Functions
-# url = "https://cloudvvuq-ymkbuh6guq-ew.a.run.app"                    # Cloud Run
+url = "https://europe-west1-sano-332607.cloudfunctions.net/TubeDeflection"  # Cloud Functions - Python
+# url = ""                    # Cloud Run - Octave TODO
 
 params = {
     "F": {"type": "float", "default": 1.0},
@@ -26,8 +26,7 @@ vary = {
 
 sampler = uq.sampling.SCSampler(vary=vary, polynomial_order=3)
 
-executor = Executor(url, "inputs/beam")  # Python
-# executor = Executor(url, "inputs/tube_deflection.m")  # Octave - only on cloud run and check endpoint version before
+executor = Executor(url)
 
 executor.set_sampler(sampler, params)
 inputs = executor.draw_samples()

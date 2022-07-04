@@ -13,7 +13,6 @@ from cloudvvuq.utils import relative_filepaths
 class Executor:
     # Cloud
     url: str
-    sim_path: str  # todo add possibility to download and use additional files
 
     # Sampler
     sampler: uq.sampling
@@ -22,9 +21,8 @@ class Executor:
     # Local
     work_dir: str
 
-    def __init__(self, url: str, sim_path: str, work_dir: str = None):  # todo sim_path can be none => no file downloaded then
+    def __init__(self, url: str, work_dir: str = None):  # todo sim_path can be none => no file downloaded then
         self.url = url
-        self.sim_path = sim_path
         self.work_dir = work_dir or os.path.join(os.path.dirname(__file__), "..", "runs", f"run_{int(time.time())}")
         # todo ^ what about jupyter usage, currently overwrites previous run_dirs
 
@@ -91,7 +89,6 @@ class Executor:
     def _prepare_samples(self, samples: list):
         for i, sample in enumerate(samples):
             sample["input_id"] = i
-            sample["sim_gcs_path"] = self.sim_path
 
         return samples
 

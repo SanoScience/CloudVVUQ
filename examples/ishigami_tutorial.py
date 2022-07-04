@@ -9,7 +9,7 @@ import matplotlib.pylab as plt
 from cloudvvuq.executor import Executor
 
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '../credentials/credentials.json'
-url = "https://europe-west1-sano-332607.cloudfunctions.net/cloudvvuq"  # Cloud Functions
+url = "https://europe-west1-sano-332607.cloudfunctions.net/Ishigami"  # Cloud Functions
 # url = "https://cloudvvuq-ymkbuh6guq-ew.a.run.app"                    # Cloud Run
 
 
@@ -61,7 +61,7 @@ vary = {
 
 def run_campaign(sc_order=2):
     sampler = uq.sampling.SCSampler(vary=vary, polynomial_order=sc_order)
-    executor = Executor(url, "inputs/ishigami.py")
+    executor = Executor(url)
     executor.set_sampler(sampler, params)
 
     inputs = executor.draw_samples()
