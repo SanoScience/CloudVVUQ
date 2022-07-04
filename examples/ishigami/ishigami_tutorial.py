@@ -8,9 +8,8 @@ import numpy as np
 import matplotlib.pylab as plt
 from cloudvvuq.executor import Executor
 
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '../credentials/credentials.json'
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '../../credentials/credentials.json'
 url = "https://europe-west1-sano-332607.cloudfunctions.net/Ishigami"  # Cloud Functions
-# url = "https://cloudvvuq-ymkbuh6guq-ew.a.run.app"                    # Cloud Run
 
 
 def ishigamiSA(a, b):
@@ -65,7 +64,7 @@ def run_campaign(sc_order=2):
     executor.set_sampler(sampler, params)
 
     inputs = executor.draw_samples()
-    outputs = executor.run(inputs, batch_size=1000)
+    outputs = executor.run(inputs, batch_size=400)
 
     campaign = executor.create_campaign("ishigami", input_columns=['x1', 'x2', 'x3', 'a', 'b'],
                                         output_columns=['ishigami'])
@@ -87,7 +86,7 @@ for sc_order in range(1, 15):
 
 
 # save the results
-pickle.dump(R, open('ishigami/collected_results.pickle', 'bw'))
+pickle.dump(R, open('ishigami/collected_results.pickle', 'bw+'))
 
 
 # plot the convergence of the mean and standard deviation to that of the highest order
