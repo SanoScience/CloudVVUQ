@@ -86,7 +86,7 @@ for sc_order in range(1, 15):
 
 
 # save the results
-pickle.dump(R, open('ishigami/collected_results.pickle', 'bw+'))
+pickle.dump(R, open('collected_results.pickle', 'bw+'))
 
 
 # plot the convergence of the mean and standard deviation to that of the highest order
@@ -104,7 +104,7 @@ plt.semilogy([o for o in O],
 plt.xlabel('SC order')
 plt.ylabel('RMSerror compared to analytic')
 plt.legend(loc=0)
-plt.savefig('ishigami/plots/Convergence_mean_std.png')
+plt.savefig('plots/Convergence_mean_std.png')
 
 
 # plot the convergence of the first sobol to that of the highest order
@@ -119,7 +119,7 @@ for v in list(R[O[0]]['results'].sobols_first('ishigami').keys()):
 plt.xlabel('SC order')
 plt.ylabel('ABSerror for 1st sobol compared to analytic')
 plt.legend(loc=0)
-plt.savefig('ishigami/plots/Convergence_sobol_first.png')
+plt.savefig('plots/Convergence_sobol_first.png')
 
 
 # prepare the test data
@@ -153,4 +153,4 @@ plt.semilogy(_o, _RMS, 'o-')
 plt.xlabel('SC order')
 plt.ylabel('RMS error for the SC surrogate')
 plt.legend(loc=0)
-plt.savefig('ishigami/plots/Convergence_SC_surrogate.png')
+plt.savefig('plots/Convergence_SC_surrogate.png')
