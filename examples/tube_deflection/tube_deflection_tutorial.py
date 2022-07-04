@@ -5,9 +5,10 @@ from matplotlib import pyplot as plt
 
 from cloudvvuq.executor import Executor
 
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '../credentials/credentials.json'
-url = "https://europe-west1-sano-332607.cloudfunctions.net/TubeDeflection"  # Cloud Functions - Python
-# url = ""                    # Cloud Run - Octave TODO
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '../../credentials/credentials.json'
+
+url = "http://127.0.0.1:8080"  # Local Docker container
+# url = "https://europe-west1-sano-332607.cloudfunctions.net/TubeDeflection"  # Cloud Functions - Python
 
 params = {
     "F": {"type": "float", "default": 1.0},
@@ -45,6 +46,6 @@ campaign.apply_analysis(
 results = campaign.get_last_analysis()
 plt.axis('off')
 
-results.plot_sobols_treemap('g1', figsize=(10, 10), filename="tube_deflection/plots/result_g1.png")
-results.plot_sobols_treemap('g2', figsize=(10, 10), filename="tube_deflection/plots/result_g2.png")
-results.plot_sobols_treemap('g3', figsize=(10, 10), filename="tube_deflection/plots/result_g3.png")
+results.plot_sobols_treemap('g1', figsize=(10, 10), filename="plots/result_g1.png")
+results.plot_sobols_treemap('g2', figsize=(10, 10), filename="plots/result_g2.png")
+results.plot_sobols_treemap('g3', figsize=(10, 10), filename="plots/result_g3.png")
