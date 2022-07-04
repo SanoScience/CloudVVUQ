@@ -1,0 +1,4 @@
+flask
+scipy
+future
+numpy
