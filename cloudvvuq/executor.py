@@ -21,10 +21,9 @@ class Executor:
     # Local
     work_dir: str
 
-    def __init__(self, url: str, work_dir: str = None):  # todo sim_path can be none => no file downloaded then
+    def __init__(self, url: str, work_dir: str = None):
         self.url = url
         self.work_dir = work_dir or os.path.join(os.path.dirname(__file__), "..", "runs", f"run_{int(time.time())}")
-        # todo ^ what about jupyter usage, currently overwrites previous run_dirs
 
     def set_sampler(self, sampler: uq.sampling, params: dict):
         self.sampler = sampler
@@ -69,7 +68,7 @@ class Executor:
         n_samples = self._find_max_samples(n_samples)
 
         for run in tqdm(self.sampler, total=n_samples, desc="Sampling ...  "):
-            if num_added >= n_samples:  # why in easyvvuq there is: n_samples != 0 and num_added >= n_samples
+            if num_added >= n_samples:
                 break
 
             missing_params = [param for param in self.params.keys() if param not in run.keys()]

@@ -29,7 +29,7 @@ def upload_files(files, bucket_name):
 
 
 def relative_filepaths(directory):
-    filepaths = [os.path.join(directory, f).replace("/", os.sep).replace("\\", os.sep)  # todo move to pathlib?
+    filepaths = [os.path.join(directory, f).replace("/", os.sep).replace("\\", os.sep)
                  for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
 
     filepaths.sort(key=lambda path: (len(path), path))
