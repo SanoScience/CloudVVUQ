@@ -1,8 +1,8 @@
-import os
-import json
-
 import time
+import json
 import asyncio
+from pathlib import Path
+
 import easyvvuq as uq
 from tqdm import tqdm
 
@@ -19,11 +19,12 @@ class Executor:
     params: dict
 
     # Local
-    work_dir: str
+    work_dir: Path
 
-    def __init__(self, url: str, work_dir: str = None):
+    def __init__(self, url: str, work_dir: [Path, str] = None):
         self.url = url
-        self.work_dir = work_dir or os.path.join(os.path.dirname(__file__), "..", "runs", f"run_{int(time.time())}")
+        self.work_dir = Path(work_dir) if work_dir else Path(Path(__file__).resolve().parents[1], "runs",
+                                                             f"run_{int(time.time())}")
 
     def set_sampler(self, sampler: uq.sampling, params: dict):
         self.sampler = sampler
@@ -116,66 +117,61 @@ class Executor:
 
         return results
 
-    def rerun_missing(self, input_dir: str = None, output_dir: str = None, batch_size: int = 0,
+    def rerun_missing(self, inputs_dir: [Path, str] = None, outputs_dir: [Path, str] = None, batch_size: int = 0,
                       require_auth: bool = True):
 
-        input_dir = input_dir or os.path.join(self.work_dir, "inputs")
-        output_dir = output_dir or os.path.join(self.work_dir, "outputs")
-
-        if not os.path.exists(input_dir):
+        inputs_dir = Path(inputs_dir) if inputs_dir else Path(self.work_dir, "inputs")
+        outputs_dir = Path(outputs_dir) if outputs_dir else Path(self.work_dir, "outputs")
+        print(inputs_dir)
+        if not inputs_dir.exists():
             raise ValueError("Input directory not found.")
-        if not os.path.exists(output_dir):
+        if not inputs_dir.exists():
             raise ValueError("Output directory not found.")
 
-        input_files = [input_json for input_json in os.listdir(input_dir) if input_json.endswith('.json')]
+        input_files = [input_json for input_json in Path(inputs_dir).glob("*.json")]
         missing_inputs = []
 
         for input_file in input_files:
-            input_id = input_file.split("_")[-1]
-            output_path = os.path.join(output_dir, f"output_{input_id}")
-            if not os.path.exists(output_path):
-                input_path = os.path.join(input_dir, input_file)
+            input_id = input_file.stem.split("_")[-1]
+            output_path = Path(outputs_dir, f"output_{input_id}")
+            if not output_path.exists():
+                input_path = Path(inputs_dir, input_file)
                 with open(input_path) as f:
                     missing_inputs.append(json.load(f))
 
         results = self._run(missing_inputs, batch_size=batch_size, require_auth=require_auth)
 
-        self.save_run_outputs(results, output_dir)
+        self.save_run_outputs(results, outputs_dir)
 
-    def save_run_inputs(self, inputs: list, save_dir: str = None):
-        save_dir = save_dir or os.path.join(self.work_dir, "inputs")
-
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
+    def save_run_inputs(self, inputs: list, save_dir: [Path, str] = None):
+        save_dir = Path(save_dir) if save_dir else Path(self.work_dir, "inputs")
+        save_dir.mkdir(parents=True, exist_ok=True)
 
         for input in inputs:
-            output_path = os.path.join(save_dir, f"input_{input['input_id']}.json")
+            output_path = Path(save_dir, f"input_{input['input_id']}.json")
             with open(output_path, "w+") as f:
                 json.dump(input, f, indent=4)
 
-    def save_run_outputs(self, results: list, save_dir: str = None):
-        save_dir = save_dir or os.path.join(self.work_dir, "outputs")
-
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
+    def save_run_outputs(self, results: list, save_dir: [Path, str] = None):
+        save_dir = Path(save_dir) if save_dir else Path(self.work_dir, "outputs")
+        save_dir.mkdir(parents=True, exist_ok=True)
 
         for result in results:
-            output_path = os.path.join(save_dir, f"output_{result['input_id']}.json")
+            output_path = Path(save_dir, f"output_{result['input_id']}.json")
             with open(output_path, "w+") as f:
                 json.dump(result, f, indent=4)
 
     def create_campaign(self, name: str, input_columns: list[str], output_columns: list[str],
-                        inputs_dir: str = None, outputs_dir: str = None):
+                        inputs_dir: [Path, str] = None, outputs_dir: [Path, str] = None):
 
-        if not os.path.exists(self.work_dir):  # used when importing external runs into campaign
-            os.makedirs(self.work_dir)
+        self.work_dir.mkdir(parents=True, exist_ok=True)  # used when importing external runs into campaign
 
         campaign = uq.Campaign(name=name + "_", work_dir=self.work_dir)
         campaign.add_app(name=name, params=self.params)
         campaign.set_sampler(self.sampler)
 
-        inputs_dir = inputs_dir or os.path.join(self.work_dir, "inputs")
-        outputs_dir = outputs_dir or os.path.join(self.work_dir, "outputs")
+        inputs_dir = Path(inputs_dir) if inputs_dir else Path(self.work_dir, "inputs")
+        outputs_dir = Path(outputs_dir) if outputs_dir else Path(self.work_dir, "outputs")
         input_files = relative_filepaths(inputs_dir)
         output_files = relative_filepaths(outputs_dir)
 

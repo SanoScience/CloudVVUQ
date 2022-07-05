@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 
 import google.oauth2.id_token
 import google.auth.transport.requests
@@ -17,7 +17,7 @@ def upload_files(files, bucket_name):
     bucket = gcs_client.get_bucket(bucket_name)
     gcs_paths = []
     for file in files:
-        filename = os.path.basename(file)
+        filename = Path(file).stem
         path = f"inputs/{filename}"
 
         blob = bucket.blob(path)
@@ -29,10 +29,9 @@ def upload_files(files, bucket_name):
 
 
 def relative_filepaths(directory):
-    filepaths = [os.path.join(directory, f).replace("/", os.sep).replace("\\", os.sep)
-                 for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
+    filepaths = list(Path(directory).glob("*.json"))
+    filepaths.sort(key=lambda path: (len(path.name), path.name))
 
-    filepaths.sort(key=lambda path: (len(path), path))
     return filepaths
 
 

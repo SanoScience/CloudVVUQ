@@ -7,8 +7,8 @@ from cloudvvuq.executor import Executor
 
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '../../credentials/credentials.json'
 
-url = "http://127.0.0.1:8080"  # Local Docker container
-# url = "https://europe-west1-sano-332607.cloudfunctions.net/TubeDeflection"  # Cloud Functions - Python
+# url = "http://127.0.0.1:8080"  # Local Docker container
+url = "https://europe-west1-sano-332607.cloudfunctions.net/TubeDeflection"  # Cloud Functions - Python
 
 params = {
     "F": {"type": "float", "default": 1.0},
