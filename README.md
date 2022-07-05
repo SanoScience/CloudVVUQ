@@ -1,4 +1,4 @@
-# CloudVVUQ (very alpha version)
+# CloudVVUQ
 Python library to run simulations on cloud with EasyVVUQ functionality
 
 ### Prepare conda environment
@@ -23,15 +23,24 @@ conda install --file requirements.txt
 ```python
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'credentials/credentials.json'
 ```
-3. Deploy GC Function source code to Cloud, copy url to code or use currently provided one.
+3. Deploy GC Function source code to Cloud:
+- Cloud Functions (fast and easy, limited dependencies and runtime languages)
+- Cloud Run (required docker image with application, unlimited dependencies and runtime languages)
+
+Copy your deployed application url. Example:
 ```python
-url = "https://europe-west1-sano-332607.cloudfunctions.net/test_simulation_http"
+url = "https://europe-west1-project-id.cloudfunctions.net/Simulation"
 ```
-4. Upload your desired simulation file to storage.
-5. Use *Executor* class for running simulations: 
-   - create EasyVVUQ sampler with parameters
+or 
+```python
+url = "https://cloudrun_app_name-ymkbuh6guq-ew.a.run.app"
+```
+4. Use *Executor* class for running simulations: 
+   - define parameters and create EasyVVUQ sampler with vary
    - create instance of *Executor* class
+   - add parameters and sampler to your executor
    - draw samples from sampler 
-   - use *executor.run()* to start simulations
-6. Create EasyVVUQ *Campaign* object  and analyze.
-7. When in doubt follow scripts in examples directory.
+   - use *executor.run(samples)* to start simulations
+5. Create EasyVVUQ *Campaign* object and analyze.  
+
+When in doubt follow scripts in examples directory.
