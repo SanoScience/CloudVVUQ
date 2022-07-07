@@ -6,7 +6,7 @@ import easyvvuq as uq
 import pickle
 import numpy as np
 import matplotlib.pylab as plt
-from cloudvvuq.executor import Executor
+from cloudvvuq.easy_executor import EasyExecutor
 
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '../../credentials/credentials.json'
 url = "https://europe-west1-sano-332607.cloudfunctions.net/Ishigami"  # Cloud Functions
@@ -60,7 +60,7 @@ vary = {
 
 def run_campaign(sc_order=2):
     sampler = uq.sampling.SCSampler(vary=vary, polynomial_order=sc_order)
-    executor = Executor(url)
+    executor = EasyExecutor(url)
     executor.set_sampler(sampler, params)
 
     samples = executor.draw_samples()

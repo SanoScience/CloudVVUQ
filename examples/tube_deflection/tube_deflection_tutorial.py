@@ -3,7 +3,7 @@ import chaospy as cp
 import easyvvuq as uq
 from matplotlib import pyplot as plt
 
-from cloudvvuq.executor import Executor
+from cloudvvuq.easy_executor import EasyExecutor
 
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '../../credentials/credentials.json'
 
@@ -27,7 +27,7 @@ vary = {
 
 sampler = uq.sampling.SCSampler(vary=vary, polynomial_order=3)
 
-executor = Executor(url)
+executor = EasyExecutor(url)
 
 executor.set_sampler(sampler, params)
 samples = executor.draw_samples()

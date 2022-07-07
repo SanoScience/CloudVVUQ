@@ -4,7 +4,7 @@ import pickle
 import easyvvuq as uq
 
 from fusion_plot import *
-from cloudvvuq.executor import Executor
+from cloudvvuq.easy_executor import EasyExecutor
 
 url = "http://127.0.0.1:8080"  # Local Docker container
 # url = "https://cloudvvuq-ymkbuh6guq-ew.a.run.app"  # Cloud Run
@@ -76,7 +76,7 @@ def define_vary():
 
 def run_pce_case(pce_order=2):
     sampler = uq.sampling.PCESampler(vary=define_vary(), polynomial_order=pce_order)
-    executor = Executor(url)
+    executor = EasyExecutor(url)
     executor.set_sampler(sampler, params=define_params())
     samples = executor.draw_samples()
     outputs = executor.run(samples, batch_size=300)
@@ -170,7 +170,7 @@ if __name__ == '__main__':
 
     # prepare the test data
     sampler = uq.sampling.quasirandom.LHCSampler(vary=define_vary(), count=100)
-    executor = Executor(url, "inputs/fusion.py")
+    executor = EasyExecutor(url, "inputs/fusion.py")
     executor.set_sampler(sampler, params=define_params())
     inputs = executor.draw_samples(1000)
     outputs = executor.run(inputs, batch_size=100)

@@ -72,8 +72,3 @@ class CloudConnector:
         save_path = Path(self.output_dir, f"output_{result['input_id']}.json")
         with open(save_path, "w+") as f:
             json.dump(result, f)
-
-
-
-
-
