@@ -42,7 +42,7 @@ async def run_simulations(inputs, url, require_auth, pbar):
             pbar.set_postfix_str(batch_progress(i + 1, len(tasks)))
 
         if None in results:
-            warnings.warn(f"Missing {results.count(None)} results.")
+            warnings.warn(f"Missing {results.count(None)} results. Use rerun_missing method.")
             results = [r for r in results if r is not None]
 
         results.sort(key=lambda x: x["input_id"])

@@ -28,7 +28,7 @@ def upload_files(files, bucket_name):
     return gcs_paths
 
 
-def relative_filepaths(directory):
+def get_relative_filepaths(directory):
     filepaths = list(Path(directory).glob("*.json"))
     filepaths.sort(key=lambda path: (len(path.name), path.name))
 

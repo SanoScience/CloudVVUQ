@@ -63,8 +63,8 @@ def run_campaign(sc_order=2):
     executor = Executor(url)
     executor.set_sampler(sampler, params)
 
-    inputs = executor.draw_samples()
-    outputs = executor.run(inputs, batch_size=400)
+    samples = executor.draw_samples()
+    outputs = executor.run(samples, batch_size=400)
 
     campaign = executor.create_campaign("ishigami", input_columns=['x1', 'x2', 'x3', 'a', 'b'],
                                         output_columns=['ishigami'])

@@ -7,7 +7,7 @@ import easyvvuq as uq
 from tqdm import tqdm
 
 from cloudvvuq.async_utlis import run_simulations
-from cloudvvuq.utils import relative_filepaths
+from cloudvvuq.utils import get_relative_filepaths
 
 
 class Executor:
@@ -101,8 +101,8 @@ class Executor:
                        bar_format='Total progress: {l_bar}{bar:10}{r_bar}{bar:-10b}')
 
         for batch in batches:
-            input_bach = inputs[batch:batch + batch_size]
-            results_batch = asyncio.run(run_simulations(input_bach, self.url, require_auth, pbar=batches))
+            input_batch = inputs[batch:batch + batch_size]
+            results_batch = asyncio.run(run_simulations(input_batch, self.url, require_auth, pbar=batches))
             results.extend(results_batch)
 
         return results
@@ -122,14 +122,14 @@ class Executor:
 
         inputs_dir = Path(inputs_dir) if inputs_dir else Path(self.work_dir, "inputs")
         outputs_dir = Path(outputs_dir) if outputs_dir else Path(self.work_dir, "outputs")
-        print(inputs_dir)
+
         if not inputs_dir.exists():
             raise ValueError("Input directory not found.")
-        if not inputs_dir.exists():
+        if not outputs_dir.exists():
             raise ValueError("Output directory not found.")
 
         input_files = [input_json for input_json in Path(inputs_dir).glob("*.json")]
-        missing_inputs = []
+        inputs_without_outputs = []
 
         for input_file in input_files:
             input_id = input_file.stem.split("_")[-1]
@@ -137,9 +137,9 @@ class Executor:
             if not output_path.exists():
                 input_path = Path(inputs_dir, input_file)
                 with open(input_path) as f:
-                    missing_inputs.append(json.load(f))
+                    inputs_without_outputs.append(json.load(f))
 
-        results = self._run(missing_inputs, batch_size=batch_size, require_auth=require_auth)
+        results = self._run(inputs_without_outputs, batch_size=batch_size, require_auth=require_auth)
 
         self.save_run_outputs(results, outputs_dir)
 
@@ -172,17 +172,17 @@ class Executor:
 
         inputs_dir = Path(inputs_dir) if inputs_dir else Path(self.work_dir, "inputs")
         outputs_dir = Path(outputs_dir) if outputs_dir else Path(self.work_dir, "outputs")
-        input_files = relative_filepaths(inputs_dir)
-        output_files = relative_filepaths(outputs_dir)
+        input_filepaths = get_relative_filepaths(inputs_dir)
+        output_filepaths = get_relative_filepaths(outputs_dir)
 
-        if not output_files:
+        if not output_filepaths:
             raise FileNotFoundError("Output files not found")
-        if len(output_files) < len(input_files):
+        if len(output_filepaths) < len(input_filepaths):
             raise FileNotFoundError("Missing outputs, try running 'rerun_missing' method before.")
 
         input_decoder = uq.decoders.JSONDecoder(target_filename='_', output_columns=input_columns)
         output_decoder = uq.decoders.JSONDecoder(target_filename='_', output_columns=output_columns)
 
-        campaign.add_external_runs(input_files, output_files, input_decoder, output_decoder)
+        campaign.add_external_runs(input_filepaths, output_filepaths, input_decoder, output_decoder)
 
         return campaign

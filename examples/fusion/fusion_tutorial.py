@@ -78,8 +78,8 @@ def run_pce_case(pce_order=2):
     sampler = uq.sampling.PCESampler(vary=define_vary(), polynomial_order=pce_order)
     executor = Executor(url)
     executor.set_sampler(sampler, params=define_params())
-    inputs = executor.draw_samples()
-    outputs = executor.run(inputs, batch_size=300)
+    samples = executor.draw_samples()
+    outputs = executor.run(samples, batch_size=300)
 
     campaign = executor.create_campaign("fusion",
                                         input_columns=list(define_vary().keys()),
