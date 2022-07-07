@@ -1,12 +1,11 @@
 import time
 import json
-import asyncio
 from pathlib import Path
 
 import easyvvuq as uq
 from tqdm import tqdm
 
-from cloudvvuq.async_utlis import run_simulations
+from cloudvvuq.cloud_connector import CloudConnector
 from cloudvvuq.utils import get_relative_filepaths
 
 
@@ -100,9 +99,11 @@ class Executor:
         batches = tqdm(range(0, len(inputs), batch_size),
                        bar_format='Total progress: {l_bar}{bar:10}{r_bar}{bar:-10b}')
 
+        connector = CloudConnector(self.url, self.work_dir, require_auth)
+
         for batch in batches:
             input_batch = inputs[batch:batch + batch_size]
-            results_batch = asyncio.run(run_simulations(input_batch, self.url, require_auth, pbar=batches))
+            results_batch = connector.send_and_receive(input_batch, pbar=batches)
             results.extend(results_batch)
 
         return results
@@ -113,15 +114,12 @@ class Executor:
 
         results = self._run(inputs, batch_size=batch_size, require_auth=require_auth)
 
-        self.save_run_outputs(results)
-
         return results
 
-    def rerun_missing(self, inputs_dir: [Path, str] = None, outputs_dir: [Path, str] = None, batch_size: int = 0,
-                      require_auth: bool = True):
+    def rerun_missing(self, batch_size: int = 0, require_auth: bool = True):
 
-        inputs_dir = Path(inputs_dir) if inputs_dir else Path(self.work_dir, "inputs")
-        outputs_dir = Path(outputs_dir) if outputs_dir else Path(self.work_dir, "outputs")
+        inputs_dir = Path(self.work_dir, "inputs")
+        outputs_dir = Path(self.work_dir, "outputs")
 
         if not inputs_dir.exists():
             raise ValueError("Input directory not found.")
@@ -139,9 +137,7 @@ class Executor:
                 with open(input_path) as f:
                     inputs_without_outputs.append(json.load(f))
 
-        results = self._run(inputs_without_outputs, batch_size=batch_size, require_auth=require_auth)
-
-        self.save_run_outputs(results, outputs_dir)
+        self._run(inputs_without_outputs, batch_size=batch_size, require_auth=require_auth)
 
     def save_run_inputs(self, inputs: list, save_dir: [Path, str] = None):
         save_dir = Path(save_dir) if save_dir else Path(self.work_dir, "inputs")
@@ -151,15 +147,6 @@ class Executor:
             output_path = Path(save_dir, f"input_{input['input_id']}.json")
             with open(output_path, "w+") as f:
                 json.dump(input, f, indent=4)
-
-    def save_run_outputs(self, results: list, save_dir: [Path, str] = None):
-        save_dir = Path(save_dir) if save_dir else Path(self.work_dir, "outputs")
-        save_dir.mkdir(parents=True, exist_ok=True)
-
-        for result in results:
-            output_path = Path(save_dir, f"output_{result['input_id']}.json")
-            with open(output_path, "w+") as f:
-                json.dump(result, f, indent=4)
 
     def create_campaign(self, name: str, input_columns: list[str], output_columns: list[str],
                         inputs_dir: [Path, str] = None, outputs_dir: [Path, str] = None):
