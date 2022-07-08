@@ -23,6 +23,9 @@ def run_script():
 
     result.update(input_json)
 
+    os.remove(input_file)
+    os.remove(input_json["outfile"])
+
     return result
 
 

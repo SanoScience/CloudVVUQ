@@ -23,6 +23,9 @@ def run_script():
     result = {k: v.item() for k, v in result.items()}
     result.update(input_json)
 
+    os.remove(input_file)
+    os.remove(output_file)
+
     return result
 
 
