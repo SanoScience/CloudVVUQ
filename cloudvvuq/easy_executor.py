@@ -3,8 +3,8 @@ from pathlib import Path
 from tqdm import tqdm
 import easyvvuq as uq
 
-from executor import Executor
-from utils import get_relative_filepaths
+from cloudvvuq.executor import Executor
+from cloudvvuq.utils import get_relative_filepaths
 
 
 class EasyExecutor(Executor):
@@ -43,36 +43,37 @@ class EasyExecutor(Executor):
         return n_samples
 
     def draw_samples(self, n_samples: int = 0):
+        self.__validate_sampling(n_samples)
+
+        samples = []
+        n_samples = self._find_max_samples(n_samples)
+
+        for sample in tqdm(self.sampler, total=n_samples, desc="Sampling ...  "):
+            if len(samples) >= n_samples:
+                break
+
+            self.__fill_default_params(sample)
+            samples.append(sample)
+
+        return samples
+
+    def __validate_sampling(self, n_samples):
         if self.sampler is None or self.params is None:
             raise ValueError("Sampler or its arguments are not set, use set_sampler method before drawing samples")
-
         if not self.sampler.is_finite() and n_samples == 0:
             msg = (f"Sampling_element '{self.sampler.element_name()}' "
                    f"is an infinite generator, therefore a finite number of "
                    f"draws (n > 0) must be specified.")
             raise RuntimeError(msg)
 
-        new_runs = []
-        num_added = 0
-        n_samples = self._find_max_samples(n_samples)
+    def __fill_default_params(self, run):
+        missing_params = [param for param in self.params.keys() if param not in run.keys()]
+        for param in missing_params:
+            if "default" not in self.params[param]:
+                raise ValueError(f"Missing 'default' field in params for {param}")
 
-        for run in tqdm(self.sampler, total=n_samples, desc="Sampling ...  "):
-            if num_added >= n_samples:
-                break
-
-            missing_params = [param for param in self.params.keys() if param not in run.keys()]
-
-            for param in missing_params:
-                if "default" not in self.params[param]:
-                    raise ValueError(f"Missing 'default' field in params for {param}")
-
-                default_val = self.params[param]["default"]
-                run[param] = default_val
-
-            num_added += 1
-            new_runs.append(run)
-
-        return new_runs
+            default_val = self.params[param]["default"]
+            run[param] = default_val
 
     def create_campaign(self, name: str, input_columns: list[str], output_columns: list[str],
                         inputs_dir: [Path, str] = None, outputs_dir: [Path, str] = None):
