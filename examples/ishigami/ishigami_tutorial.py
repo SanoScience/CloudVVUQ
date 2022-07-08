@@ -124,7 +124,7 @@ plt.savefig('plots/Convergence_sobol_first.png')
 
 # prepare the test data
 sampler = uq.sampling.quasirandom.LHCSampler(vary=vary, count=100)
-executor_test = Executor(url, "inputs/ishigami.py")
+executor_test = EasyExecutor(url, "inputs/ishigami.py")
 executor_test.set_sampler(sampler, params)
 samples = executor_test.draw_samples(1000)
 executor_test.run(samples)

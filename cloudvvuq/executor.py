@@ -1,5 +1,6 @@
 import time
 import json
+import tempfile
 from pathlib import Path
 
 from tqdm import tqdm
@@ -13,8 +14,10 @@ class Executor:
 
     def __init__(self, url: str, work_dir: [Path, str] = None):
         self.url = url
-        self.work_dir = Path(work_dir) if work_dir else Path(Path(__file__).resolve().parents[1], "runs",
+        self.work_dir = Path(work_dir) if work_dir else Path(tempfile.gettempdir(), "CloudVVUQ_runs",
                                                              f"run_{int(time.time())}")
+
+        self.work_dir.mkdir(parents=True, exist_ok=True)
 
     def _prepare_samples(self, samples: list):
         for i, sample in enumerate(samples):
