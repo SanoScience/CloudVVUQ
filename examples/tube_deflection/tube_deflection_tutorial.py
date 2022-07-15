@@ -8,6 +8,7 @@ from cloudvvuq.easy_executor import EasyExecutor
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '../../credentials/credentials.json'
 
 # url = "http://127.0.0.1:8080"  # Local Docker container
+# url = "https://cloudvvuq-ymkbuh6guq-ew.a.run.app"  # Cloud Run - Python
 url = "https://europe-west1-sano-332607.cloudfunctions.net/TubeDeflection"  # Cloud Functions - Python
 
 params = {

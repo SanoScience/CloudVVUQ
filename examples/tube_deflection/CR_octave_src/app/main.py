@@ -11,8 +11,8 @@ app = Flask(__name__)
 def run_script():
     input_json = request.get_json()
 
-    input_file = os.path.join(input_dir, f"input_{input_json['input_id']}.mat")
-    output_file = os.path.join(output_dir, f"output_{input_json['input_id']}.mat")
+    input_file = f"/tmp/input_{input_json['input_id']}.mat"
+    output_file = f"/tmp/output_{input_json['input_id']}.mat"
 
     savemat(input_file, input_json)
 
@@ -30,11 +30,4 @@ def run_script():
 
 
 if __name__ == "__main__":
-    input_dir = "/tmp/inputs"
-    output_dir = "/tmp/outputs"
-    if not os.path.exists(input_dir):
-        os.mkdir(input_dir)
-    if not os.path.exists(output_dir):
-        os.mkdir(output_dir)
-
-    app.run(debug=False, host="0.0.0.0", port=8080)
+    app.run(debug=False, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
