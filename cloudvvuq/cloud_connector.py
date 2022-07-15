@@ -34,7 +34,7 @@ class CloudConnector:
             id_token = get_gcp_token(self.url)  # lifetime 1h
             header["Authorization"] = f"Bearer {id_token}"
 
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit=1000)) as session:
             tasks = []
             for input_data in inputs:
                 tasks.append(asyncio.ensure_future(self.fetch_and_save(session, header, input_data)))
