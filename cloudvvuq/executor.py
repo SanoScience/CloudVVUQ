@@ -3,8 +3,6 @@ import json
 import tempfile
 from pathlib import Path
 
-from tqdm import tqdm
-
 from cloudvvuq.cloud_connector import CloudConnector
 
 
@@ -25,33 +23,24 @@ class Executor:
 
         return samples
 
-    def _run(self, inputs: list, *, batch_size: int = 0, require_auth: bool = True):
-        if batch_size == 0:
-            batch_size = len(inputs)
+    def _run(self, inputs: list, *, max_load: int = 0, require_auth: bool = True):
+        if max_load == 0:
+            max_load = len(inputs)
 
-        results = []
-        batches = tqdm(range(0, len(inputs), batch_size),
-                       bar_format='Total progress: {l_bar}{bar:10}{r_bar}{bar:-10b}')
-
-        connector = CloudConnector(self.url, self.work_dir, require_auth)
-
-        for batch in batches:
-            input_batch = inputs[batch:batch + batch_size]
-            results_batch = connector.send_and_receive(input_batch, pbar=batches)
-            results.extend(results_batch)
+        connector = CloudConnector(self.url, self.work_dir, require_auth, max_load)
+        results = connector.send_and_receive(inputs)
 
         return results
 
-    def run(self, samples: list, *, batch_size: int = 0, require_auth: bool = True):
+    def run(self, samples: list, *, max_load: int = 0, require_auth: bool = True):
         inputs = self._prepare_samples(samples)
         self.save_run_inputs(inputs)
 
-        results = self._run(inputs, batch_size=batch_size, require_auth=require_auth)
+        results = self._run(inputs, max_load=max_load, require_auth=require_auth)
 
         return results
 
-    def rerun_missing(self, batch_size: int = 0, require_auth: bool = True):
-
+    def rerun_missing(self, max_load: int = 0, require_auth: bool = True):
         inputs_dir = Path(self.work_dir, "inputs")
         outputs_dir = Path(self.work_dir, "outputs")
 
@@ -71,7 +60,7 @@ class Executor:
                 with open(input_path) as f:
                     inputs_without_outputs.append(json.load(f))
 
-        self._run(inputs_without_outputs, batch_size=batch_size, require_auth=require_auth)
+        self._run(inputs_without_outputs, max_load=max_load, require_auth=require_auth)
 
     def save_run_inputs(self, inputs: list, save_dir: [Path, str] = None):
         save_dir = Path(save_dir) if save_dir else Path(self.work_dir, "inputs")

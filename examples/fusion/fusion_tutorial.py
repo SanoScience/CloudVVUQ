@@ -79,7 +79,7 @@ def run_pce_case(pce_order=2):
     executor = EasyExecutor(url)
     executor.set_sampler(sampler, params=define_params())
     samples = executor.draw_samples()
-    outputs = executor.run(samples, batch_size=300)
+    outputs = executor.run(samples, max_load=300)
 
     campaign = executor.create_campaign("fusion",
                                         input_columns=list(define_vary().keys()),
@@ -173,7 +173,7 @@ if __name__ == '__main__':
     executor = EasyExecutor(url, "inputs/fusion.py")
     executor.set_sampler(sampler, params=define_params())
     inputs = executor.draw_samples(1000)
-    outputs = executor.run(inputs, batch_size=100)
+    outputs = executor.run(inputs, max_load=100)
 
     test_campaign = executor.create_campaign("fusion_pce",
                                              input_columns=list(define_vary().keys()),
