@@ -23,24 +23,24 @@ class Executor:
 
         return samples
 
-    def _run(self, inputs: list, *, max_load: int = 0, require_auth: bool = True):
+    def _run(self, inputs: list, *, max_load: int = 0, cloud_provider: str = None):
         if max_load == 0:
             max_load = len(inputs)
 
-        connector = CloudConnector(self.url, self.work_dir, require_auth, max_load)
+        connector = CloudConnector(self.url, self.work_dir, cloud_provider, max_load)
         results = connector.send_and_receive(inputs)
 
         return results
 
-    def run(self, samples: list, *, max_load: int = 0, require_auth: bool = True):
+    def run(self, samples: list, *, max_load: int = 0, cloud_provider: str = None):
         inputs = self._prepare_samples(samples)
         self.save_run_inputs(inputs)
 
-        results = self._run(inputs, max_load=max_load, require_auth=require_auth)
+        results = self._run(inputs, max_load=max_load, cloud_provider=cloud_provider)
 
         return results
 
-    def rerun_missing(self, max_load: int = 0, require_auth: bool = True):
+    def rerun_missing(self, max_load: int = 0, cloud_provider: str = None):
         inputs_dir = Path(self.work_dir, "inputs")
         outputs_dir = Path(self.work_dir, "outputs")
 
@@ -60,7 +60,7 @@ class Executor:
                 with open(input_path) as f:
                     inputs_without_outputs.append(json.load(f))
 
-        self._run(inputs_without_outputs, max_load=max_load, require_auth=require_auth)
+        self._run(inputs_without_outputs, max_load=max_load, cloud_provider=cloud_provider)
 
     def save_run_inputs(self, inputs: list, save_dir: [Path, str] = None):
         save_dir = Path(save_dir) if save_dir else Path(self.work_dir, "inputs")

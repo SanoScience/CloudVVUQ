@@ -79,7 +79,7 @@ def run_pce_case(pce_order=2):
     executor = EasyExecutor(url)
     executor.set_sampler(sampler, params=define_params())
     samples = executor.draw_samples()
-    outputs = executor.run(samples, max_load=300)
+    outputs = executor.run(samples, max_load=300, cloud_provider="gcp")
 
     campaign = executor.create_campaign("fusion",
                                         input_columns=list(define_vary().keys()),

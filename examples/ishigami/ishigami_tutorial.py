@@ -64,7 +64,7 @@ def run_campaign(sc_order=2):
     executor.set_sampler(sampler, params)
 
     samples = executor.draw_samples()
-    outputs = executor.run(samples, max_load=400)
+    outputs = executor.run(samples, max_load=400, cloud_provider="gcp")
 
     campaign = executor.create_campaign("ishigami", input_columns=['x1', 'x2', 'x3', 'a', 'b'],
                                         output_columns=['ishigami'])

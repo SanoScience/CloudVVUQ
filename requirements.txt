@@ -1,8 +1,8 @@
 easyvvuq
 aiohttp
 backoff
-google-cloud-storage
+botocore
 chaospy
+google-cloud-storage
 matplotlib
-dask
 tqdm

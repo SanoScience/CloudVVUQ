@@ -1,26 +1,25 @@
-import asyncio
 import json
+import asyncio
+import warnings
 from pathlib import Path
 
 import aiohttp
 import backoff
-import warnings
-
 from tqdm import tqdm
 
-from cloudvvuq.utils import get_gcp_token
+from cloudvvuq.auth import get_gcp_token, aws_sign_headers
 
 
 class CloudConnector:
     url: str
     output_dir: Path
-    require_auth: bool
+    cloud_provider: str
     max_load: int
 
-    def __init__(self, url, work_dir, require_auth, max_load):
+    def __init__(self, url, work_dir, cloud_provider, max_load):
         self.url = url
         self.output_dir = Path(work_dir, "outputs")
-        self.require_auth = require_auth
+        self.cloud_provider = cloud_provider
         self.max_load = max_load
 
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -30,7 +29,7 @@ class CloudConnector:
 
     async def _send_and_receive(self, inputs):
         header = {'Content-Type': "application/json"}
-        if self.require_auth:
+        if self.cloud_provider == "gcp":
             id_token = get_gcp_token(self.url)  # lifetime 1h
             header["Authorization"] = f"Bearer {id_token}"
 
@@ -54,9 +53,11 @@ class CloudConnector:
         return results
 
     @backoff.on_exception(backoff.constant, (aiohttp.ClientResponseError, aiohttp.ClientOSError,
-                                         aiohttp.ServerDisconnectedError),
+                                             aiohttp.ServerDisconnectedError),
                           max_tries=7, raise_on_giveup=False)
     async def fetch_and_save(self, session, header, input_data, semaphore, pbar):
+        if self.cloud_provider == "aws":
+            header.update(aws_sign_headers(self.url, input_data))
         async with semaphore, session.post(self.url, headers=header, json=input_data) as resp:
             if resp.status == 200:
                 result = await resp.json()

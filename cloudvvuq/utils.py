@@ -1,14 +1,6 @@
 from pathlib import Path
 
-import google.oauth2.id_token
-import google.auth.transport.requests
 from google.cloud import storage
-
-
-def get_gcp_token(audience):
-    auth_req = google.auth.transport.requests.Request()
-    id_token = google.oauth2.id_token.fetch_id_token(auth_req, audience)
-    return id_token
 
 
 def upload_files(files, bucket_name):

@@ -8,8 +8,10 @@ from cloudvvuq.easy_executor import EasyExecutor
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '../../credentials/credentials.json'
 
 # url = "http://127.0.0.1:8080"  # Local Docker container
+# url = "http://localhost:8080/2015-03-31/functions/function/invocations"  # Local AWS lambda container
 # url = "https://cloudvvuq-ymkbuh6guq-ew.a.run.app"  # Cloud Run - Python
-url = "https://europe-west1-sano-332607.cloudfunctions.net/TubeDeflection"  # Cloud Functions - Python
+# url = "https://europe-west1-sano-332607.cloudfunctions.net/TubeDeflection"  # Cloud Functions - Python
+url = "https://dx6qs64nzckbqqfh73g4m5ssqq0yjmhz.lambda-url.eu-central-1.on.aws/"  # AWS lambda
 
 params = {
     "F": {"type": "float", "default": 1.0},
@@ -32,7 +34,7 @@ executor = EasyExecutor(url)
 
 executor.set_sampler(sampler, params)
 samples = executor.draw_samples()
-outputs = executor.run(samples, max_load=256)
+outputs = executor.run(samples, max_load=256, cloud_provider="aws")
 
 campaign = executor.create_campaign("tube_deflection", input_columns=['F', 'L', 'a', 'D', 'd', 'E'],
                                     output_columns=['g1', 'g2', 'g3'])
