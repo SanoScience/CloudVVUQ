@@ -53,7 +53,7 @@ class CloudConnector:
 
         return results
 
-    @backoff.on_exception(backoff.expo, (aiohttp.ClientResponseError, aiohttp.ClientOSError,
+    @backoff.on_exception(backoff.constant, (aiohttp.ClientResponseError, aiohttp.ClientOSError,
                                          aiohttp.ServerDisconnectedError),
                           max_tries=7, raise_on_giveup=False)
     async def fetch_and_save(self, session, header, input_data, semaphore, pbar):
