@@ -11,10 +11,6 @@ from tqdm import tqdm
 from cloudvvuq.utils import get_gcp_token
 
 
-def fatal_code(e):
-    return None
-
-
 class CloudConnector:
     url: str
     output_dir: Path
@@ -59,7 +55,7 @@ class CloudConnector:
 
     @backoff.on_exception(backoff.expo, (aiohttp.ClientResponseError, aiohttp.ClientOSError,
                                          aiohttp.ServerDisconnectedError),
-                          max_tries=7, on_giveup=fatal_code)
+                          max_tries=7, raise_on_giveup=False)
     async def fetch_and_save(self, session, header, input_data, semaphore, pbar):
         async with semaphore, session.post(self.url, headers=header, json=input_data) as resp:
             if resp.status == 200:
