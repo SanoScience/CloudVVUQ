@@ -1,3 +1,4 @@
+import sys
 import json
 import asyncio
 import warnings
@@ -23,6 +24,9 @@ class CloudConnector:
         self.max_load = max_load
 
         self.output_dir.mkdir(parents=True, exist_ok=True)
+
+        if sys.platform.startswith('win') and sys.version_info[0] == 3 and sys.version_info[1] >= 8:
+            asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
     def send_and_receive(self, inputs):
         return asyncio.run(self._send_and_receive(inputs))
@@ -57,7 +61,7 @@ class CloudConnector:
                           max_tries=7, raise_on_giveup=False)
     async def fetch_and_save(self, session, header, input_data, semaphore, pbar):
         if self.cloud_provider == "aws":
-            header.update(aws_sign_headers(self.url, input_data))
+            header = {**header, **aws_sign_headers(self.url, input_data)}
         async with semaphore, session.post(self.url, headers=header, json=input_data) as resp:
             if resp.status == 200:
                 result = await resp.json()
