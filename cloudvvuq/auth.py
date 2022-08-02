@@ -7,7 +7,7 @@ from botocore import session, awsrequest, auth
 AWS_CREDENTIALS = session.Session().get_credentials()
 
 
-def get_gcp_token(audience):
+def get_gcp_token(audience: str):
     auth_req = google.auth.transport.requests.Request()
     id_token = google.oauth2.id_token.fetch_id_token(auth_req, audience)
     return id_token

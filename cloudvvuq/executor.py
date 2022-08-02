@@ -17,23 +17,23 @@ class Executor:
 
         self.work_dir.mkdir(parents=True, exist_ok=True)
 
-    def _prepare_samples(self, samples: list):
+    def _prepare_samples(self, samples: list[dict]):
         for i, sample in enumerate(samples):
             if "input_id" not in sample:
                 sample["input_id"] = i
 
         return samples
 
-    def _run(self, inputs: list, *, max_load: int = 0, cloud_provider: str = None):
+    def _run(self, inputs: list[dict], *, max_load: int = 0, cloud_provider: str = None):
         if max_load == 0:
             max_load = len(inputs)
 
         connector = CloudConnector(self.url, self.work_dir, cloud_provider, max_load)
-        results = connector.send_and_receive(inputs)
+        results = connector.fetch_all(inputs)
 
         return results
 
-    def run(self, samples: list, *, max_load: int = 0, cloud_provider: str = None):
+    def run(self, samples: list[dict], *, max_load: int = 0, cloud_provider: str = None):
         inputs = self._prepare_samples(samples)
         self.save_run_inputs(inputs)
 
@@ -63,7 +63,7 @@ class Executor:
 
         return inputs_without_outputs
 
-    def save_run_inputs(self, inputs: list, save_dir: [Path, str] = None):
+    def save_run_inputs(self, inputs: list[dict], save_dir: [Path, str] = None):
         save_dir = Path(save_dir) if save_dir else Path(self.work_dir, "inputs")
         save_dir.mkdir(parents=True, exist_ok=True)
 

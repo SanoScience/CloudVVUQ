@@ -25,14 +25,3 @@ def get_relative_filepaths(directory):
     filepaths.sort(key=lambda path: (len(path.name), path.name))
 
     return filepaths
-
-
-def batch_progress(curr, N, width=10, bars=u'▉▊▋▌▍▎▏ '[::-1],
-                   full='█', empty=' '):
-    p = curr / N
-    nfull = int(p * width)
-    return "Batch progress: {:>3.0%} |{}{}{}| {:>2}/{}" \
-        .format(p, full * nfull,
-                bars[int(len(bars) * ((p * width) % 1))] if curr != N else "",
-                empty * (width - nfull - 1),
-                curr, N)

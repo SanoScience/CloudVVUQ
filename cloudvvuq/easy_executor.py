@@ -94,8 +94,8 @@ class EasyExecutor(Executor):
         if len(output_filepaths) < len(input_filepaths):
             raise FileNotFoundError("Missing outputs, try running 'rerun_missing' method before.")
 
-        input_decoder = uq.decoders.JSONDecoder(target_filename='_', output_columns=input_columns)
-        output_decoder = uq.decoders.JSONDecoder(target_filename='_', output_columns=output_columns)
+        input_decoder = uq.decoders.JSONDecoder(target_filename=None, output_columns=input_columns)
+        output_decoder = uq.decoders.JSONDecoder(target_filename=None, output_columns=output_columns)
 
         campaign.add_external_runs(input_filepaths, output_filepaths, input_decoder, output_decoder)
 
