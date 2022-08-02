@@ -52,12 +52,9 @@ class CloudConnector:
             warnings.warn(f"Missing {results.count(None)} results. Use rerun_missing method.")
             results = [r for r in results if r is not None]
 
-        results.sort(key=lambda x: x["input_id"])
-
         return results
 
-    @backoff.on_exception(backoff.constant, (aiohttp.ClientResponseError, aiohttp.ClientOSError,
-                                             aiohttp.ServerDisconnectedError),
+    @backoff.on_exception(backoff.constant, (aiohttp.ClientError, aiohttp.ServerDisconnectedError),
                           max_tries=7, raise_on_giveup=False)
     async def fetch_one(self, input_data, headers, session, semaphore, pbar):
         if self.cloud_provider == "aws":
