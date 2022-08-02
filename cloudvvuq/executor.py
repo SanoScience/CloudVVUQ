@@ -19,7 +19,8 @@ class Executor:
 
     def _prepare_samples(self, samples: list):
         for i, sample in enumerate(samples):
-            sample["input_id"] = i
+            if "input_id" not in sample:
+                sample["input_id"] = i
 
         return samples
 
@@ -40,7 +41,7 @@ class Executor:
 
         return results
 
-    def rerun_missing(self, max_load: int = 0, cloud_provider: str = None):
+    def find_inputs_to_rerun(self):
         inputs_dir = Path(self.work_dir, "inputs")
         outputs_dir = Path(self.work_dir, "outputs")
 
@@ -54,13 +55,13 @@ class Executor:
 
         for input_file in input_files:
             input_id = input_file.stem.split("_")[-1]
-            output_path = Path(outputs_dir, f"output_{input_id}")
+            output_path = Path(outputs_dir, f"output_{input_id}.json")
             if not output_path.exists():
                 input_path = Path(inputs_dir, input_file)
                 with open(input_path) as f:
                     inputs_without_outputs.append(json.load(f))
 
-        self._run(inputs_without_outputs, max_load=max_load, cloud_provider=cloud_provider)
+        return inputs_without_outputs
 
     def save_run_inputs(self, inputs: list, save_dir: [Path, str] = None):
         save_dir = Path(save_dir) if save_dir else Path(self.work_dir, "inputs")
@@ -68,5 +69,7 @@ class Executor:
 
         for input in inputs:
             output_path = Path(save_dir, f"input_{input['input_id']}.json")
+            if output_path.exists():
+                continue
             with open(output_path, "w+") as f:
                 json.dump(input, f, indent=4)
