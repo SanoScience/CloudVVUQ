@@ -6,3 +6,4 @@ chaospy
 google-cloud-storage
 matplotlib
 tqdm
+cachetools
