@@ -25,3 +25,13 @@ def get_relative_filepaths(directory):
     filepaths.sort(key=lambda path: (len(path.name), path.name))
 
     return filepaths
+
+def status_map_repr(status_map):
+    map_repr = "statuses: "
+    total = sum(status_map.values())
+    statuses = sorted(status_map.keys())
+    for status in statuses:
+        map_repr += f"'{status}' = {status_map[status]} ({round(status_map[status] / total * 100, 1)}%)"
+        map_repr += ", " if status != statuses[-1] else ""
+
+    return map_repr

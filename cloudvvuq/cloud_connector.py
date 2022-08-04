@@ -2,6 +2,7 @@ import sys
 import json
 import asyncio
 import warnings
+from collections import defaultdict
 from pathlib import Path
 
 import aiohttp
@@ -9,6 +10,7 @@ import backoff
 from tqdm import tqdm
 
 from cloudvvuq.auth import get_gcp_token, aws_sign_headers
+from cloudvvuq.utils import status_map_repr
 
 
 class CloudConnector:
@@ -41,9 +43,11 @@ class CloudConnector:
             tasks = []
             pbar = tqdm(total=len(inputs))
             sem = asyncio.Semaphore(self.max_load)
+            status_map = defaultdict(int)
 
             for input_data in inputs:
-                tasks.append(asyncio.ensure_future(self.fetch_one(input_data, headers, session, sem, pbar)))
+                task = asyncio.ensure_future(self.fetch_one(input_data, headers, session, sem, pbar, status_map))
+                tasks.append(task)
 
             results = await asyncio.gather(*tasks)
             pbar.close()
@@ -56,17 +60,18 @@ class CloudConnector:
 
     @backoff.on_exception(backoff.constant, (aiohttp.ClientError, aiohttp.ServerDisconnectedError),
                           max_tries=7, raise_on_giveup=False)
-    async def fetch_one(self, input_data, headers, session, semaphore, pbar):
+    async def fetch_one(self, input_data, headers, session, semaphore, pbar, status_map):
         if self.cloud_provider == "aws":
             headers = {**headers, **aws_sign_headers(self.url, input_data)}
         async with semaphore, session.post(self.url, headers=headers, json=input_data) as resp:
+            status_map[resp.status] += 1
+            pbar.set_postfix_str(status_map_repr(status_map))
             if resp.status == 200:
                 result = await resp.json()
                 self.save(result)
                 pbar.update()
                 return result
             else:
-                print(resp.status, resp.headers)
                 resp.raise_for_status()
 
     def save(self, result):
