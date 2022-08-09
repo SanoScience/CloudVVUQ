@@ -3,7 +3,7 @@ import json
 import subprocess
 
 
-def handler(event, context):
+def lambda_handler(event, context):
     input_json = json.loads(event['body'])
     input_file = f"/tmp/input_{input_json['input_id']}.json"
     input_json["outfile"] = f"/tmp/output_{input_json['input_id']}.json"

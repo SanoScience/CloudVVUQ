@@ -11,7 +11,8 @@ os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '../../credentials/credentials.js
 # url = "http://localhost:8080/2015-03-31/functions/function/invocations"  # Local AWS lambda container
 # url = "https://cloudvvuq-ymkbuh6guq-ew.a.run.app"  # Cloud Run - Python
 # url = "https://europe-west1-sano-332607.cloudfunctions.net/TubeDeflection"  # Cloud Functions - Python
-url = "https://dx6qs64nzckbqqfh73g4m5ssqq0yjmhz.lambda-url.eu-central-1.on.aws/"  # AWS lambda
+# url = "https://dx6qs64nzckbqqfh73g4m5ssqq0yjmhz.lambda-url.eu-central-1.on.aws/"  # AWS Lambda Image
+url = "https://ueo7uf62rzbu5t2bypcjis7qi40tnqpz.lambda-url.eu-central-1.on.aws/"  # AWS Lambda Layer
 
 params = {
     "F": {"type": "float", "default": 1.0},
