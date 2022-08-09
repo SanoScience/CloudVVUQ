@@ -21,8 +21,6 @@ class Authorizer:
             return self.aws_sign_headers(self.url, payload)
         elif self.cloud_provider == "gcp":
             return {"Authorization": f"Bearer {self.get_gcp_token(self.url)}"}
-        else:
-            raise ValueError("Unknown provider")
 
     def aws_sign_headers(self, url: str, payload: dict):
         service = "lambda"

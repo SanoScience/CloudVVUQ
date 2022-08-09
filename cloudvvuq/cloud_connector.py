@@ -34,7 +34,8 @@ class CloudConnector:
         return asyncio.run(self._fetch_all(inputs))
 
     async def _fetch_all(self, inputs):
-        async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit=1000)) as session:
+        async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit=1000),
+                                         timeout=aiohttp.ClientTimeout(total=3600)) as session:
             tasks = []
             sem = asyncio.Semaphore(self.max_load)
             pbar = tqdm(total=len(inputs))
