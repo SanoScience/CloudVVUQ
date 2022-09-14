@@ -54,7 +54,7 @@ class CloudConnector:
 
         return results
 
-    @backoff.on_exception(backoff.constant, (aiohttp.ClientError, aiohttp.ServerDisconnectedError),
+    @backoff.on_exception(backoff.constant, (aiohttp.ClientError, aiohttp.ServerDisconnectedError, asyncio.TimeoutError),
                           max_tries=7, raise_on_giveup=False)
     async def fetch_one(self, input_data, session, semaphore, pbar, status_map):
         headers = self.authorizer.sign_request(input_data)
