@@ -1,0 +1,48 @@
+site_name: CloudVVUQ documentation
+
+theme:
+  name: material
+
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+
+docs_dir: docs
+nav:
+  - Introduction: 'index.md'
+  - Installation: 'installation.md'
+  - Model preparation: 'model_preparation.md'
+  - Model deployment: 'model_deployment.md'
+  - Cloud configuration:
+    - General configuration: 'cloud_configuration/general_configuration.md'
+    - AWS Lambda: 'cloud_configuration/aws_lambda.md'
+    - Google Cloud Run: 'cloud_configuration/google_cloud_run.md'
+    - Google Cloud Functions: 'cloud_configuration/google_cloud_functions.md'
+  - Credentials configuration: 'credentials_configuration.md'
+  - Local configuration: 'local_configuration.md'
+  - Examples:
+    - Tube Deflection: 'examples/examples_tube_deflection.md'
+    - Fusion: 'examples/examples_fusion.md'
+    - Ishigami: 'examples/examples_ishigami.md'
+  - Trivia: 'trivia.md'
+  # - Design: ?
+
+

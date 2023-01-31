@@ -1,0 +1,2 @@
+ - Your deployments can go into the inactive/idle state after a period (e.g. 1-2 weeks) of inactivity (no traffic). It means that you may have to manually restore it (AWS Lambda) or expect initial degradation of performance (in response status codes and invocation times).  
+ 
