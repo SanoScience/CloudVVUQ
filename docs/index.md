@@ -1,4 +1,6 @@
-# CloudVVUQ
+# CloudVVUQ documentation
+ 
+
 What:  
 **CloudVVUQ** - python library which allows running simulations **in parallel** and in the **cloud** with EasyVVUQ functionality.    
 
@@ -23,7 +25,4 @@ How to use:
 6. Launch full-scale simulations.   
  
 
-To run docs:
-```bash
-mkdocs serve
-```
+
