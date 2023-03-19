@@ -22,8 +22,13 @@ How to use:
 5. Deploy the model (see model_deployment section). Test it on smaller scale.  
 6. Launch full-scale simulations.   
  
-
+## Documentation
 To run docs:
 ```bash
 mkdocs serve
 ```
+
+## Acknowledgments
+
+This work is supported by the European Union’s Horizon 2020 research and innovation programme under grant agreement Sano No 857533 and carried out within the International Research Agendas programme of the Foundation for Polish Science, co-financed by the European Union under the European Regional Development Fund.  
+This work is also partly supported by the European Union’s Horizon 2020 research and innovation programme under grant agreement ISW No 101016503.
