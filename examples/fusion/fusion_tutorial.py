@@ -193,6 +193,8 @@ if __name__ == '__main__':
         plt.semilogy(R[i]['results'].describe('rho', 'mean'),
                      np.sqrt(((test_predictions[i] - test_results) ** 2).mean(axis=0)) / test_results.mean(axis=0),
                      label='PCE order %s with %s samples' % (R[i]['order'], R[i]['number_of_samples']))
+    # fixme: convergence surrogate plot is plotted on pce_surrogate plot
+    # plt.figure()
     plt.xlabel('rho [m]')
     plt.ylabel('fractional RMS for predicted Te')
     plt.legend(loc=0)

@@ -2,6 +2,8 @@ import os
 import chaospy as cp
 import easyvvuq as uq
 from matplotlib import pyplot as plt
+import matplotlib
+matplotlib.use('TkAgg')
 
 from cloudvvuq.easy_executor import EasyExecutor
 
@@ -12,7 +14,7 @@ os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '../../credentials/credentials.js
 # url = "https://cloudvvuq-ymkbuh6guq-ew.a.run.app"  # Cloud Run - Python
 # url = "https://europe-west1-sano-332607.cloudfunctions.net/TubeDeflection"  # Cloud Functions - Python
 # url = "https://dx6qs64nzckbqqfh73g4m5ssqq0yjmhz.lambda-url.eu-central-1.on.aws/"  # AWS Lambda Image
-url = "https://ueo7uf62rzbu5t2bypcjis7qi40tnqpz.lambda-url.eu-central-1.on.aws/"  # AWS Lambda Layer
+url = "https://jxdvtogestjrjgn5xq2vx762540wncwh.lambda-url.us-east-1.on.aws/"  # AWS Lambda Layer
 
 params = {
     "F": {"type": "float", "default": 1.0},
@@ -29,19 +31,19 @@ vary = {
     "D": cp.Triangle(0.75, 0.8, 0.85),
 }
 
-sampler = uq.sampling.SCSampler(vary=vary, polynomial_order=3)
-
+sampler = uq.sampling.SCSampler(vary=vary, polynomial_order=1)  # fix to 1 for 1:1 results with easyvvuq
+# sampler =uq.sampling.PCESampler(vary=vary, polynomial_order=1)
 executor = EasyExecutor(url)
 
 executor.set_sampler(sampler, params)
 samples = executor.draw_samples()
-outputs = executor.run(samples, max_load=256, cloud_provider="aws")
+outputs = executor.run(samples[:1], max_load=10, cloud_provider="aws")
 
 campaign = executor.create_campaign("tube_deflection", input_columns=['F', 'L', 'a', 'D', 'd', 'E'],
                                     output_columns=['g1', 'g2', 'g3'])
 
 campaign.apply_analysis(
-    uq.analysis.SCAnalysis(
+    uq.analysis.PCEAnalysis(
         sampler=campaign.get_active_sampler(),
         qoi_cols=["g1", 'g2', 'g3']
     )
