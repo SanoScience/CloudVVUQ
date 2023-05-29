@@ -31,13 +31,12 @@ vary = {
     "D": cp.Triangle(0.75, 0.8, 0.85),
 }
 
-sampler = uq.sampling.SCSampler(vary=vary, polynomial_order=1)  # fix to 1 for 1:1 results with easyvvuq
-# sampler =uq.sampling.PCESampler(vary=vary, polynomial_order=1)
+sampler = uq.sampling.PCESampler(vary=vary, polynomial_order=1)
 executor = EasyExecutor(url)
 
 executor.set_sampler(sampler, params)
 samples = executor.draw_samples()
-outputs = executor.run(samples[:1], max_load=10, cloud_provider="aws")
+outputs = executor.run(samples, max_load=256, cloud_provider="gcp")
 
 campaign = executor.create_campaign("tube_deflection", input_columns=['F', 'L', 'a', 'D', 'd', 'E'],
                                     output_columns=['g1', 'g2', 'g3'])
